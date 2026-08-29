@@ -118,18 +118,29 @@
      * ----------------------------------------------------
      */
 
-    const map = new maplibregl.Map({
-      container: "map",
+    const UK_BOUNDS = [
+  [-8.8, 49.8],  // south-west
+  [2.2, 60.9]    // north-east
+];
 
-      style:
-        "https://demotiles.maplibre.org/style.json",
+const map = new maplibregl.Map({
+  container: "map",
 
-      center: [-2.5, 54.5],
+  style:
+    "https://demotiles.maplibre.org/style.json",
 
-      zoom: 5,
+  center: [-2.5, 54.5],
 
-      fadeDuration: 0
-    });
+  zoom: 5,
+
+  // Prevent users from panning outside the UK area
+  maxBounds: UK_BOUNDS,
+
+  // Prevent repeated copies of the world appearing
+  renderWorldCopies: false,
+
+  fadeDuration: 0
+});
 
 
     /*
