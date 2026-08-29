@@ -8,7 +8,7 @@
     content="width=device-width, initial-scale=1.0"
   />
 
-  <title>British Judo Events Map 1.1</title>
+  <title>British Judo Events Map 1.2</title>
 
   <link
     rel="stylesheet"
@@ -36,7 +36,7 @@
     }
 
     header {
-      background: #fff;
+      background: #0300bd;
       border-bottom: 1px solid #ddd;
       padding: 12px 18px;
       z-index: 20;
@@ -323,7 +323,7 @@
 <body>
 
   <header>
-    <h1>British Judo Events Map</h1>
+    <h1>British Judo Events Map 1.2</h1>
 
     <div id="status">
       Loading events...
@@ -879,23 +879,6 @@
         }
 
       });
-
-map.addLayer({
-  id: "unclustered-point-hitbox",
-  type: "circle",
-  source: "events",
-
-  filter: [
-    "!",
-    ["has", "point_count"]
-  ],
-
-  paint: {
-    "circle-radius": 40,
-    "circle-color": "#000000",
-    "circle-opacity": 0
-  }
-});
       map.addLayer({
 
         id:
@@ -918,7 +901,7 @@ map.addLayer({
             "#e53935",
 
           "circle-radius":
-            7,
+            100,
 
           "circle-stroke-width":
             2,
@@ -1460,7 +1443,7 @@ map.addLayer({
 
     map.on(
       "click",
-      "unclustered-point-hitbox",
+      "unclustered-point",
       event => {
 
         const feature =
@@ -1967,7 +1950,7 @@ map.addLayer({
 
     map.on(
       "mouseenter",
-      "unclustered-point-hitbox",
+      "unclustered-point",
       () => {
 
         map.getCanvas()
@@ -1980,7 +1963,7 @@ map.addLayer({
 
     map.on(
       "mouseleave",
-      "unclustered-point-hitbox",
+      "unclustered-point",
       () => {
 
         map.getCanvas()
