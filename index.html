@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>BJA Events Map</title>
+
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/maplibre-gl@^6.6.0/dist/maplibre-gl.css"
+  />
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      height: 100%;
+      font-family: Arial, sans-serif;
+    }
+
+    #app {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+    }
+
+    header {
+      padding: 14px 18px;
+      border-bottom: 1px solid #ddd;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 22px;
+    }
+
+    header p {
+      margin: 4px 0 0;
+      color: #555;
+      font-size: 14px;
+    }
+
+    #map {
+      flex: 1;
+      min-height: 0;
+    }
+
+    .maplibregl-popup-content {
+      max-width: 300px;
+    }
+
+    .event-popup h3 {
+      margin: 0 0 8px;
+      font-size: 16px;
+    }
+
+    .event-popup p {
+      margin: 5px 0;
+      font-size: 13px;
+    }
+
+    .event-popup a {
+      display: inline-block;
+      margin-top: 7px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="app">
+
+    <header>
+      <h1>British Judo Events Map</h1>
+      <p id="status">Loading events…</p>
+    </header>
+
+    <div id="map"></div>
+
+  </div>
+
+  <script type="module">
+
+    import * as maplibregl
+      from "https://unpkg.com/maplibre-gl@^6.6.0/dist/maplibre-gl.mjs";
+
+    const API_URL =
+      "https://bja-events-sync.spencer-stylianides.workers.dev/api/events";
+
+    const map = new maplibregl.Map({
+      container: "map",
+
+      style:
+        "https://demotiles.maplibre.org/style.json",
+
+      center: [-2.5, 54.5],
+
+      zoom: 5
+    });
+
+    map.addControl(
+      new maplibregl.NavigationControl(),
+      "top-right"
+    );
+
+    async function loadEvents() {
+
+      const response = await fetch(API_URL);
+
+      if (!response.ok) {
+        throw new Error(
+          `API returned ${response.status}`
+        );
+      }
+
+      const data = await response.json();
+
+      document.getElementById("status").textContent =
+        `${data.count} events currently shown`;
+
+      const bounds = new maplibregl.LngLatBounds();
+
+      for (const event of data.events) {
+
+        const lng = Number(event.longitude);
+        const lat = Number(event.latitude);
+
+        if (!Number.isFinite(lng) ||
+            !Number.isFinite(lat)) {
+          continue;
+        }
+
+        const date =
+          new Date(
+            event.start_datetime.replace(" ", "T")
+          );
+
+        const formattedDate =
+          date.toLocaleDateString("en-GB", {
+            weekday: "short",
+            day: "numeric",
+            month: "short",
+            year: "numeric"
+          });
+
+        const popupHtml = `
+          <div class="event-popup">
+
+            <h3>
+              ${escapeHtml(event.title)}
+            </h3>
+
+            <p>
+              <strong>Date:</strong>
+              ${formattedDate}
+            </p>
+
+            <p>
+              <strong>Venue:</strong>
+              ${escapeHtml(event.venue_name ?? "")}
+            </p>
+
+            ${
+              event.city
+                ? `
+                  <p>
+                    ${escapeHtml(event.city)}
+                    ${
+                      event.postcode
+                        ? `, ${escapeHtml(event.postcode)}`
+                        : ""
+                    }
+                  </p>
+                `
+                : ""
+            }
+
+            <a
+              href="${event.bja_url}"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              View on British Judo
+            </a>
+
+          </div>
+        `;
+
+        new maplibregl.Marker()
+          .setLngLat([lng, lat])
+          .setPopup(
+            new maplibregl.Popup({
+              offset: 20
+            }).setHTML(popupHtml)
+          )
+          .addTo(map);
+
+        bounds.extend([lng, lat]);
+      }
+
+      if (!bounds.isEmpty()) {
+        map.fitBounds(bounds, {
+          padding: 50,
+          maxZoom: 8
+        });
+      }
+    }
+
+    function escapeHtml(value) {
+
+      return String(value ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    loadEvents().catch(error => {
+
+      console.error(error);
+
+      document.getElementById("status")
+        .textContent =
+        "Could not load events.";
+    });
+
+  </script>
+</body>
+</html>
