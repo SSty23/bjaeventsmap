@@ -125,14 +125,12 @@ const UK_BOUNDS = [
 
 const map = new maplibregl.Map({
   container: "map",
-  style: "https://demotiles.maplibre.org/style.json",
+  style: "https://tiles.openfreemap.org/styles/liberty",
 
   bounds: UK_BOUNDS,
-  minZoom: 6,
   fitBoundsOptions: {
     padding: 30
   },
-
   renderWorldCopies: false,
   fadeDuration: 0
 });
