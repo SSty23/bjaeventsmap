@@ -404,48 +404,23 @@
        * ----------------------------------------------------
        */
 
-      map.addLayer({
+map.addLayer({
+  id: "cluster-count",
+  type: "symbol",
+  source: "events",
+  filter: ["has", "point_count"],
 
-        id:
-          "cluster-count",
+  layout: {
+    "text-field": "{point_count_abbreviated}",
+    "text-font": ["Noto Sans Regular"],
+    "text-size": 13,
+    "text-allow-overlap": true
+  },
 
-        type:
-          "symbol",
-
-        source:
-          "events",
-
-        filter:
-          ["has", "point_count"],
-
-        layout: {
-
-          /*
-           * MapLibre automatically supplies
-           * point_count_abbreviated.
-           */
-
-          "text-field":
-            ["get", "point_count_abbreviated"],
-
-          "text-font": [
-            "Open Sans Semibold",
-            "Arial Unicode MS Bold"
-          ],
-
-          "text-size":
-            13
-
-        },
-
-        paint: {
-
-          "text-color":
-            "#ffffff"
-
-        }
-
-      });
+  paint: {
+    "text-color": "#ffffff"
+  }
+});
 
 
       /*
@@ -553,62 +528,43 @@
      * level where that cluster expands.
      */
 
-    map.on(
-      "click",
-      "clusters",
-      async event => {
+map.on("click", "clusters", async (e) => {
 
-        const features =
-          map.queryRenderedFeatures(
-            event.point,
-            {
-              layers: [
-                "clusters"
-              ]
-            }
-          );
+  const features = map.queryRenderedFeatures(
+    e.point,
+    {
+      layers: ["clusters"]
+    }
+  );
 
+  if (!features.length) {
+    return;
+  }
 
-        if (!features.length) {
+   console.log(
+    "Cluster clicked:",
+    features[0].properties
+  );
 
-          return;
+  const clusterId =
+    features[0].properties.cluster_id;
 
-        }
+  const source =
+    map.getSource("events");
 
-
-        const cluster =
-          features[0];
-
-
-        const clusterId =
-          Number(
-            cluster.properties.cluster_id
-          );
-
-
-        const source =
-          map.getSource("events");
-
-
-        const zoom =
-          await source
-            .getClusterExpansionZoom(
-              clusterId
-            );
-
-
-        map.easeTo({
-
-          center:
-            cluster.geometry.coordinates,
-
-          zoom:
-            zoom
-
-        });
-
-      }
+  const zoom =
+    await source.getClusterExpansionZoom(
+      clusterId
     );
+
+  map.easeTo({
+    center:
+      features[0].geometry.coordinates,
+    zoom:
+      zoom
+  });
+
+});
 
 
     /*
