@@ -125,30 +125,22 @@ const UK_BOUNDS = [
 
 const map = new maplibregl.Map({
   container: "map",
+  style: "https://demotiles.maplibre.org/style.json",
 
-  style:
-    "https://demotiles.maplibre.org/style.json",
+  bounds: UK_BOUNDS,
 
-  center: [-2.5, 54.5],
-
-  zoom: 5,
-
-  maxBounds: UK_BOUNDS,
+  fitBoundsOptions: {
+    padding: 30
+  },
 
   renderWorldCopies: false,
-
   fadeDuration: 0
 });
 
-
-    /*
-     * Add zoom / rotation controls
-     */
-
-    map.addControl(
-      new maplibregl.NavigationControl(),
-      "top-right"
-    );
+map.addControl(
+  new maplibregl.NavigationControl(),
+  "top-right"
+);
 
 
     /*
@@ -929,23 +921,7 @@ map.on("click", "clusters", async (e) => {
     map.on(
       "load",
       async () => {
-const camera = map.cameraForBounds(
-  UK_BOUNDS,
-  {
-    padding: 25
-  }
-);
 
-if (camera?.zoom !== undefined) {
-  map.setMinZoom(camera.zoom);
-}
-
-map.fitBounds(
-  UK_BOUNDS,
-  {
-    padding: 25
-  }
-);
         try {
 
           await loadEvents();
