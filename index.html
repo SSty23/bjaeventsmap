@@ -133,13 +133,8 @@ const map = new maplibregl.Map({
 
   zoom: 5,
 
-  // Stops users panning away from the UK
   maxBounds: UK_BOUNDS,
 
-  // Stops users zooming out to the whole world
-  minZoom: 4.5,
-
-  // Stops duplicate world copies
   renderWorldCopies: false,
 
   fadeDuration: 0
@@ -934,7 +929,23 @@ map.on("click", "clusters", async (e) => {
     map.on(
       "load",
       async () => {
+const camera = map.cameraForBounds(
+  UK_BOUNDS,
+  {
+    padding: 25
+  }
+);
 
+if (camera?.zoom !== undefined) {
+  map.setMinZoom(camera.zoom);
+}
+
+map.fitBounds(
+  UK_BOUNDS,
+  {
+    padding: 25
+  }
+);
         try {
 
           await loadEvents();
