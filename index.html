@@ -92,7 +92,8 @@
       color: #444;
     }
 
-    .filter-group input {
+    .filter-group input,
+    .filter-group select {
       width: 100%;
       padding: 9px 10px;
       border: 1px solid #ccc;
@@ -169,6 +170,22 @@
       line-height: 1.4;
     }
 
+    .event-categories {
+      margin-top: 6px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+    }
+
+    .event-category {
+      display: inline-block;
+      padding: 3px 6px;
+      border-radius: 4px;
+      background: #eef3f8;
+      color: #445;
+      font-size: 11px;
+    }
+
     .no-events {
       padding: 20px 14px;
       color: #777;
@@ -200,6 +217,20 @@
       margin: 6px 0;
       font-size: 14px;
       line-height: 1.4;
+    }
+
+    .popup-categories {
+      margin-top: 8px;
+    }
+
+    .popup-category {
+      display: inline-block;
+      padding: 3px 6px;
+      margin: 2px 3px 2px 0;
+      border-radius: 4px;
+      background: #eef3f8;
+      color: #445;
+      font-size: 11px;
     }
 
     .event-popup a {
@@ -276,6 +307,18 @@
             type="search"
             placeholder="e.g. Cardiff, grading, coaching..."
           />
+        </div>
+
+        <div class="filter-group">
+          <label for="categoryFilter">
+            Event type
+          </label>
+
+          <select id="categoryFilter">
+            <option value="">
+              All event types
+            </option>
+          </select>
         </div>
 
         <div class="date-row">
@@ -438,12 +481,49 @@
             }
 
 
+            /*
+             * Make sure categories is always an array.
+             */
+
+            let categories =
+              event.categories ?? [];
+
+
+            if (
+              typeof categories === "string"
+            ) {
+
+              try {
+
+                categories =
+                  JSON.parse(categories);
+
+              }
+              catch {
+
+                categories = [];
+
+              }
+
+            }
+
+
+            if (
+              !Array.isArray(categories)
+            ) {
+
+              categories = [];
+
+            }
+
+
             return {
 
               ...event,
 
               longitude,
-              latitude
+              latitude,
+              categories
 
             };
 
@@ -458,6 +538,8 @@
       );
 
 
+      populateCategoryFilter();
+
       setupEventSource();
 
       applyFilters();
@@ -467,6 +549,90 @@
         .getElementById("status")
         .textContent =
           `${allEvents.length} mappable events loaded`;
+
+    }
+
+
+    /* ----------------------------------------------------
+       CATEGORY DROPDOWN
+    ---------------------------------------------------- */
+
+    function populateCategoryFilter() {
+
+      const select =
+        document.getElementById(
+          "categoryFilter"
+        );
+
+
+      const categoryMap =
+        new Map();
+
+
+      for (const event of allEvents) {
+
+        for (
+          const category of
+          event.categories ?? []
+        ) {
+
+          if (
+            category.slug &&
+            category.name
+          ) {
+
+            categoryMap.set(
+              category.slug,
+              category.name
+            );
+
+          }
+
+        }
+
+      }
+
+
+      const categories =
+        Array.from(
+          categoryMap.entries()
+        )
+          .sort(
+            (a, b) =>
+              a[1].localeCompare(
+                b[1]
+              )
+          );
+
+
+      select.innerHTML = `
+        <option value="">
+          All event types
+        </option>
+      `;
+
+
+      for (
+        const [slug, name]
+        of categories
+      ) {
+
+        const option =
+          document.createElement(
+            "option"
+          );
+
+        option.value =
+          slug;
+
+        option.textContent =
+          name;
+
+        select.appendChild(
+          option
+        );
+
+      }
 
     }
 
@@ -721,6 +887,14 @@
           .toLowerCase();
 
 
+      const category =
+        document
+          .getElementById(
+            "categoryFilter"
+          )
+          .value;
+
+
       const fromDate =
         document
           .getElementById("fromDate")
@@ -759,6 +933,29 @@
           ) {
 
             return false;
+
+          }
+
+
+          /*
+           * Category filter.
+           */
+
+          if (category) {
+
+            const hasCategory =
+              (event.categories ?? [])
+                .some(
+                  item =>
+                    item.slug === category
+                );
+
+
+            if (!hasCategory) {
+
+              return false;
+
+            }
 
           }
 
@@ -901,6 +1098,38 @@
           event.id;
 
 
+        let categoriesHtml = "";
+
+
+        if (
+          event.categories?.length
+        ) {
+
+          categoriesHtml = `
+
+            <div class="event-categories">
+
+              ${
+                event.categories
+                  .map(
+                    category => `
+                      <span class="event-category">
+                        ${escapeHtml(
+                          category.name
+                        )}
+                      </span>
+                    `
+                  )
+                  .join("")
+              }
+
+            </div>
+
+          `;
+
+        }
+
+
         item.innerHTML = `
 
           <div class="event-date">
@@ -945,6 +1174,8 @@
 
           </div>
 
+          ${categoriesHtml}
+
         `;
 
 
@@ -987,10 +1218,15 @@
           event.latitude
         ],
 
+        /*
+         * 15 ensures the cluster has broken apart,
+         * because clusterMaxZoom is 14.
+         */
+
         zoom:
           Math.max(
             map.getZoom(),
-            14
+            15
           ),
 
         duration:
@@ -998,11 +1234,6 @@
 
       });
 
-
-      /*
-       * Wait for clustering to break apart before
-       * displaying popup.
-       */
 
       window.setTimeout(
         () => {
@@ -1231,6 +1462,38 @@
       }
 
 
+      let categoriesHtml = "";
+
+
+      if (
+        event.categories?.length
+      ) {
+
+        categoriesHtml = `
+
+          <div class="popup-categories">
+
+            ${
+              event.categories
+                .map(
+                  category => `
+                    <span class="popup-category">
+                      ${escapeHtml(
+                        category.name
+                      )}
+                    </span>
+                  `
+                )
+                .join("")
+            }
+
+          </div>
+
+        `;
+
+      }
+
+
       let linkHtml = "";
 
 
@@ -1275,6 +1538,8 @@
           ${locationHtml}
 
           ${costHtml}
+
+          ${categoriesHtml}
 
           ${linkHtml}
 
@@ -1342,6 +1607,16 @@
 
 
     document
+      .getElementById(
+        "categoryFilter"
+      )
+      .addEventListener(
+        "change",
+        applyFilters
+      );
+
+
+    document
       .getElementById("fromDate")
       .addEventListener(
         "change",
@@ -1365,6 +1640,13 @@
 
           document
             .getElementById("search")
+            .value = "";
+
+
+          document
+            .getElementById(
+              "categoryFilter"
+            )
             .value = "";
 
 
