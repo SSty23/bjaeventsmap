@@ -23,7 +23,6 @@
     html,
     body {
       margin: 0;
-      padding: 0;
       width: 100%;
       height: 100%;
       font-family: Arial, Helvetica, sans-serif;
@@ -37,7 +36,7 @@
     }
 
     header {
-      background: #ffffff;
+      background: #fff;
       border-bottom: 1px solid #ddd;
       padding: 12px 18px;
       z-index: 20;
@@ -60,9 +59,9 @@
       display: flex;
     }
 
-    /* --------------------------------------------------
+    /* --------------------------------------------
        SIDEBAR
-    -------------------------------------------------- */
+    -------------------------------------------- */
 
     #sidebar {
       width: 360px;
@@ -127,6 +126,7 @@
       border-bottom: 1px solid #ddd;
       font-weight: bold;
       font-size: 14px;
+      line-height: 1.4;
     }
 
     #eventList {
@@ -192,9 +192,9 @@
       text-align: center;
     }
 
-    /* --------------------------------------------------
+    /* --------------------------------------------
        MAP
-    -------------------------------------------------- */
+    -------------------------------------------- */
 
     #map {
       flex: 1;
@@ -204,54 +204,92 @@
 
     .maplibregl-popup-content {
       padding: 14px;
-      max-width: 300px;
+      width: 310px;
+      max-width: 310px;
+      max-height: 420px;
+      overflow-y: auto;
     }
 
-    .event-popup h3 {
-      margin: 0 0 10px 0;
+    .venue-popup-title {
+      margin: 0 0 5px 0;
       font-size: 17px;
       line-height: 1.3;
     }
 
-    .event-popup p {
-      margin: 6px 0;
+    .venue-popup-location {
+      margin: 0 0 10px 0;
+      font-size: 13px;
+      color: #666;
+    }
+
+    .venue-popup-count {
+      margin: 0 0 10px 0;
+      font-size: 12px;
+      font-weight: bold;
+      color: #555;
+    }
+
+    .popup-event {
+      border-top: 1px solid #ddd;
+      padding: 10px 0;
+    }
+
+    .popup-event:first-of-type {
+      border-top: 0;
+    }
+
+    .popup-event-date {
+      font-size: 12px;
+      color: #555;
+      font-weight: bold;
+      margin-bottom: 3px;
+    }
+
+    .popup-event-title {
       font-size: 14px;
-      line-height: 1.4;
+      font-weight: bold;
+      line-height: 1.3;
+    }
+
+    .popup-event-cost {
+      margin-top: 4px;
+      font-size: 12px;
+      color: #666;
     }
 
     .popup-categories {
-      margin-top: 8px;
+      margin-top: 5px;
     }
 
     .popup-category {
       display: inline-block;
-      padding: 3px 6px;
-      margin: 2px 3px 2px 0;
+      padding: 3px 5px;
+      margin: 2px 2px 2px 0;
       border-radius: 4px;
       background: #eef3f8;
       color: #445;
-      font-size: 11px;
+      font-size: 10px;
     }
 
-    .event-popup a {
+    .popup-event a {
       display: inline-block;
-      margin-top: 8px;
-      padding: 8px 10px;
+      margin-top: 7px;
+      padding: 6px 8px;
       background: #0d47a1;
-      color: white;
+      color: #fff;
       text-decoration: none;
       border-radius: 4px;
-      font-size: 13px;
+      font-size: 12px;
       font-weight: bold;
     }
 
-    .event-popup a:hover {
+    .popup-event a:hover {
       background: #083574;
     }
 
-    /* --------------------------------------------------
+    /* --------------------------------------------
        MOBILE
-    -------------------------------------------------- */
+    -------------------------------------------- */
 
     @media (max-width: 750px) {
       #app {
@@ -274,8 +312,9 @@
         font-size: 18px;
       }
 
-      .date-row {
-        grid-template-columns: 1fr 1fr;
+      .maplibregl-popup-content {
+        width: 270px;
+        max-width: 270px;
       }
     }
   </style>
@@ -291,6 +330,7 @@
     </div>
   </header>
 
+
   <div id="app">
 
     <aside id="sidebar">
@@ -298,6 +338,7 @@
       <div id="filters">
 
         <div class="filter-group">
+
           <label for="search">
             Search events or locations
           </label>
@@ -307,23 +348,31 @@
             type="search"
             placeholder="e.g. Cardiff, grading, coaching..."
           />
+
         </div>
 
+
         <div class="filter-group">
+
           <label for="categoryFilter">
             Event type
           </label>
 
           <select id="categoryFilter">
+
             <option value="">
               All event types
             </option>
+
           </select>
+
         </div>
+
 
         <div class="date-row">
 
           <div class="filter-group">
+
             <label for="fromDate">
               From
             </label>
@@ -332,9 +381,12 @@
               id="fromDate"
               type="date"
             />
+
           </div>
 
+
           <div class="filter-group">
+
             <label for="toDate">
               To
             </label>
@@ -343,9 +395,11 @@
               id="toDate"
               type="date"
             />
+
           </div>
 
         </div>
+
 
         <button
           id="resetFilters"
@@ -356,17 +410,21 @@
 
       </div>
 
+
       <div id="resultCount">
         Loading...
       </div>
+
 
       <div id="eventList"></div>
 
     </aside>
 
+
     <div id="map"></div>
 
   </div>
+
 
   <script type="module">
 
@@ -374,9 +432,9 @@
       from "https://unpkg.com/maplibre-gl@6.6.0/dist/maplibre-gl.mjs";
 
 
-    /* ----------------------------------------------------
+    /* ====================================================
        CONFIG
-    ---------------------------------------------------- */
+    ==================================================== */
 
     const API_URL =
       "https://bja-events-sync.spencer-stylianides.workers.dev/api/events";
@@ -388,26 +446,38 @@
     ];
 
 
-    /* ----------------------------------------------------
+    /* ====================================================
        STATE
-    ---------------------------------------------------- */
+    ==================================================== */
 
     let allEvents = [];
 
+    /*
+     * Events matching search/category/date filters.
+     *
+     * These remain on the map even if currently outside
+     * the visible map viewport.
+     */
     let filteredEvents = [];
 
+
+    /*
+     * Event currently selected from the sidebar.
+     */
     let selectedEventId = null;
+
 
     let activePopup = null;
 
 
-    /* ----------------------------------------------------
+    /* ====================================================
        MAP
-    ---------------------------------------------------- */
+    ==================================================== */
 
     const map = new maplibregl.Map({
 
-      container: "map",
+      container:
+        "map",
 
       style:
         "https://tiles.openfreemap.org/styles/liberty",
@@ -429,17 +499,14 @@
 
 
     map.addControl(
-
       new maplibregl.NavigationControl(),
-
       "top-right"
-
     );
 
 
-    /* ----------------------------------------------------
-       LOAD DATA
-    ---------------------------------------------------- */
+    /* ====================================================
+       LOAD EVENTS
+    ==================================================== */
 
     async function loadEvents() {
 
@@ -480,10 +547,6 @@
 
             }
 
-
-            /*
-             * Make sure categories is always an array.
-             */
 
             let categories =
               event.categories ?? [];
@@ -553,9 +616,9 @@
     }
 
 
-    /* ----------------------------------------------------
-       CATEGORY DROPDOWN
-    ---------------------------------------------------- */
+    /* ====================================================
+       CATEGORY FILTER
+    ==================================================== */
 
     function populateCategoryFilter() {
 
@@ -637,9 +700,9 @@
     }
 
 
-    /* ----------------------------------------------------
+    /* ====================================================
        GEOJSON
-    ---------------------------------------------------- */
+    ==================================================== */
 
     function eventsToGeoJSON(events) {
 
@@ -674,26 +737,8 @@
               title:
                 event.title ?? "",
 
-              start_datetime:
-                event.start_datetime ?? "",
-
-              end_datetime:
-                event.end_datetime ?? "",
-
               venue_name:
-                event.venue_name ?? "",
-
-              city:
-                event.city ?? "",
-
-              postcode:
-                event.postcode ?? "",
-
-              cost_text:
-                event.cost_text ?? "",
-
-              bja_url:
-                event.bja_url ?? ""
+                event.venue_name ?? ""
 
             }
 
@@ -704,9 +749,9 @@
     }
 
 
-    /* ----------------------------------------------------
-       MAP SOURCE + LAYERS
-    ---------------------------------------------------- */
+    /* ====================================================
+       MAP SOURCE / CLUSTERS
+    ==================================================== */
 
     function setupEventSource() {
 
@@ -873,9 +918,9 @@
     }
 
 
-    /* ----------------------------------------------------
+    /* ====================================================
        FILTERING
-    ---------------------------------------------------- */
+    ==================================================== */
 
     function applyFilters() {
 
@@ -910,10 +955,6 @@
       filteredEvents =
         allEvents.filter(event => {
 
-          /*
-           * Search title, venue, city and postcode.
-           */
-
           const searchableText = [
 
             event.title,
@@ -937,10 +978,6 @@
           }
 
 
-          /*
-           * Category filter.
-           */
-
           if (category) {
 
             const hasCategory =
@@ -959,10 +996,6 @@
 
           }
 
-
-          /*
-           * Compare using YYYY-MM-DD.
-           */
 
           const eventDate =
             getDatePart(
@@ -1002,9 +1035,9 @@
     }
 
 
-    /* ----------------------------------------------------
+    /* ====================================================
        UPDATE MAP
-    ---------------------------------------------------- */
+    ==================================================== */
 
     function updateMap() {
 
@@ -1025,22 +1058,40 @@
         )
       );
 
+    }
 
-      document
-        .getElementById("resultCount")
-        .textContent =
-          `${filteredEvents.length} ${
-            filteredEvents.length === 1
-              ? "event"
-              : "events"
-          }`;
+
+    /* ====================================================
+       EVENTS CURRENTLY INSIDE MAP VIEW
+    ==================================================== */
+
+    function getVisibleEvents() {
+
+      if (!map.loaded()) {
+
+        return filteredEvents;
+
+      }
+
+
+      const bounds =
+        map.getBounds();
+
+
+      return filteredEvents.filter(
+        event =>
+          bounds.contains([
+            event.longitude,
+            event.latitude
+          ])
+      );
 
     }
 
 
-    /* ----------------------------------------------------
-       EVENT LIST
-    ---------------------------------------------------- */
+    /* ====================================================
+       SIDEBAR
+    ==================================================== */
 
     function renderEventList() {
 
@@ -1050,16 +1101,38 @@
         );
 
 
+      const visibleEvents =
+        getVisibleEvents();
+
+
+      document
+        .getElementById("resultCount")
+        .textContent =
+          `${visibleEvents.length} ${
+            visibleEvents.length === 1
+              ? "event"
+              : "events"
+          } in this map area` +
+          (
+            visibleEvents.length !==
+            filteredEvents.length
+
+              ? ` · ${filteredEvents.length} matching filters`
+
+              : ""
+          );
+
+
       container.innerHTML = "";
 
 
       if (
-        filteredEvents.length === 0
+        visibleEvents.length === 0
       ) {
 
         container.innerHTML = `
           <div class="no-events">
-            No events match these filters.
+            No events are visible in this map area.
           </div>
         `;
 
@@ -1069,7 +1142,7 @@
 
 
       for (
-        const event of filteredEvents
+        const event of visibleEvents
       ) {
 
         const item =
@@ -1133,18 +1206,24 @@
         item.innerHTML = `
 
           <div class="event-date">
+
             ${escapeHtml(
               formatEventDate(
                 event.start_datetime
               )
             )}
+
           </div>
 
+
           <div class="event-title">
+
             ${escapeHtml(
               event.title
             )}
+
           </div>
+
 
           <div class="event-location">
 
@@ -1156,6 +1235,7 @@
                 : ""
             }
 
+
             ${
               event.city
                 ? `<br>${escapeHtml(
@@ -1163,6 +1243,7 @@
                   )}`
                 : ""
             }
+
 
             ${
               event.postcode
@@ -1173,6 +1254,7 @@
             }
 
           </div>
+
 
           ${categoriesHtml}
 
@@ -1198,9 +1280,47 @@
     }
 
 
-    /* ----------------------------------------------------
-       SELECT EVENT FROM SIDEBAR
-    ---------------------------------------------------- */
+    /* ====================================================
+       EVENTS AT SAME LOCATION
+    ==================================================== */
+
+    function getEventsAtLocation(
+      longitude,
+      latitude
+    ) {
+
+      /*
+       * Use a small tolerance to avoid problems caused
+       * by floating point precision.
+       */
+
+      const tolerance =
+        0.000001;
+
+
+      return filteredEvents.filter(
+        event =>
+
+          Math.abs(
+            event.longitude -
+            longitude
+          ) < tolerance
+
+          &&
+
+          Math.abs(
+            event.latitude -
+            latitude
+          ) < tolerance
+
+      );
+
+    }
+
+
+    /* ====================================================
+       SIDEBAR EVENT CLICK
+    ==================================================== */
 
     function selectEvent(event) {
 
@@ -1218,11 +1338,6 @@
           event.latitude
         ],
 
-        /*
-         * 15 ensures the cluster has broken apart,
-         * because clusterMaxZoom is 14.
-         */
-
         zoom:
           Math.max(
             map.getZoom(),
@@ -1238,8 +1353,15 @@
       window.setTimeout(
         () => {
 
-          showEventPopup(
-            event,
+          const venueEvents =
+            getEventsAtLocation(
+              event.longitude,
+              event.latitude
+            );
+
+
+          showLocationPopup(
+            venueEvents,
             [
               event.longitude,
               event.latitude
@@ -1253,9 +1375,9 @@
     }
 
 
-    /* ----------------------------------------------------
+    /* ====================================================
        CLUSTER CLICK
-    ---------------------------------------------------- */
+    ==================================================== */
 
     map.on(
       "click",
@@ -1317,9 +1439,9 @@
     );
 
 
-    /* ----------------------------------------------------
-       MAP EVENT CLICK
-    ---------------------------------------------------- */
+    /* ====================================================
+       RED MARKER CLICK
+    ==================================================== */
 
     map.on(
       "click",
@@ -1337,19 +1459,20 @@
         }
 
 
-        const id =
-          feature.properties.id;
+        const coordinates =
+          feature.geometry.coordinates;
 
 
-        const selected =
-          allEvents.find(
-            event =>
-              String(event.id) ===
-              String(id)
+        const venueEvents =
+          getEventsAtLocation(
+            Number(coordinates[0]),
+            Number(coordinates[1])
           );
 
 
-        if (!selected) {
+        if (
+          venueEvents.length === 0
+        ) {
 
           return;
 
@@ -1357,34 +1480,44 @@
 
 
         selectedEventId =
-          selected.id;
+          venueEvents[0].id;
 
 
         renderEventList();
 
 
-        showEventPopup(
-          selected,
-          feature.geometry.coordinates
+        showLocationPopup(
+          venueEvents,
+          coordinates
         );
 
 
         scrollEventIntoView(
-          selected.id
+          venueEvents[0].id
         );
 
       }
     );
 
 
-    /* ----------------------------------------------------
-       POPUP
-    ---------------------------------------------------- */
+    /* ====================================================
+       MULTI-EVENT LOCATION POPUP
+    ==================================================== */
 
-    function showEventPopup(
-      event,
+    function showLocationPopup(
+      events,
       coordinates
     ) {
+
+      if (
+        !events ||
+        events.length === 0
+      ) {
+
+        return;
+
+      }
+
 
       if (activePopup) {
 
@@ -1393,155 +1526,213 @@
       }
 
 
-      let locationHtml = "";
+      const sortedEvents =
+        [...events]
+          .sort(
+            (a, b) =>
+              parseEventDate(
+                a.start_datetime
+              ) -
+              parseEventDate(
+                b.start_datetime
+              )
+          );
 
 
-      if (event.venue_name) {
+      const firstEvent =
+        sortedEvents[0];
 
-        locationHtml += `
 
-          <p>
-            <strong>Venue:</strong>
-            ${escapeHtml(
-              event.venue_name
-            )}
-          </p>
+      const venueName =
+        firstEvent.venue_name ||
+        "Event location";
 
-        `;
+
+      let locationText = "";
+
+
+      if (firstEvent.city) {
+
+        locationText +=
+          firstEvent.city;
 
       }
 
 
-      if (
-        event.city ||
-        event.postcode
-      ) {
+      if (firstEvent.postcode) {
 
-        locationHtml += `
+        if (locationText) {
 
-          <p>
+          locationText +=
+            " ";
 
-            ${escapeHtml(
-              event.city ?? ""
-            )}
+        }
 
-            ${
-              event.city &&
-              event.postcode
-                ? ", "
-                : ""
+        locationText +=
+          firstEvent.postcode;
+
+      }
+
+
+      const eventItemsHtml =
+        sortedEvents
+          .map(event => {
+
+            let categoriesHtml = "";
+
+
+            if (
+              event.categories?.length
+            ) {
+
+              categoriesHtml = `
+
+                <div class="popup-categories">
+
+                  ${
+                    event.categories
+                      .map(
+                        category => `
+                          <span class="popup-category">
+                            ${escapeHtml(
+                              category.name
+                            )}
+                          </span>
+                        `
+                      )
+                      .join("")
+                  }
+
+                </div>
+
+              `;
+
             }
 
-            ${escapeHtml(
-              event.postcode ?? ""
-            )}
 
-          </p>
-
-        `;
-
-      }
+            let costHtml = "";
 
 
-      let costHtml = "";
+            if (event.cost_text) {
 
+              costHtml = `
 
-      if (event.cost_text) {
+                <div class="popup-event-cost">
 
-        costHtml = `
+                  Cost:
+                  ${escapeHtml(
+                    event.cost_text
+                  )}
 
-          <p>
-            <strong>Cost:</strong>
-            ${escapeHtml(
-              event.cost_text
-            )}
-          </p>
+                </div>
 
-        `;
+              `;
 
-      }
-
-
-      let categoriesHtml = "";
-
-
-      if (
-        event.categories?.length
-      ) {
-
-        categoriesHtml = `
-
-          <div class="popup-categories">
-
-            ${
-              event.categories
-                .map(
-                  category => `
-                    <span class="popup-category">
-                      ${escapeHtml(
-                        category.name
-                      )}
-                    </span>
-                  `
-                )
-                .join("")
             }
 
-          </div>
 
-        `;
-
-      }
+            let linkHtml = "";
 
 
-      let linkHtml = "";
+            if (event.bja_url) {
+
+              linkHtml = `
+
+                <a
+                  href="${escapeAttribute(
+                    event.bja_url
+                  )}"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  View event
+                </a>
+
+              `;
+
+            }
 
 
-      if (event.bja_url) {
+            return `
 
-        linkHtml = `
+              <div class="popup-event">
 
-          <a
-            href="${escapeAttribute(
-              event.bja_url
-            )}"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            View on British Judo
-          </a>
+                <div class="popup-event-date">
 
-        `;
+                  ${escapeHtml(
+                    formatEventDate(
+                      event.start_datetime
+                    )
+                  )}
 
-      }
+                </div>
+
+
+                <div class="popup-event-title">
+
+                  ${escapeHtml(
+                    event.title
+                  )}
+
+                </div>
+
+
+                ${costHtml}
+
+                ${categoriesHtml}
+
+                ${linkHtml}
+
+              </div>
+
+            `;
+
+          })
+          .join("");
 
 
       const html = `
 
-        <div class="event-popup">
+        <div class="venue-popup">
 
-          <h3>
+          <h3 class="venue-popup-title">
+
             ${escapeHtml(
-              event.title
+              venueName
             )}
+
           </h3>
 
-          <p>
-            <strong>Date:</strong>
-            ${escapeHtml(
-              formatEventDate(
-                event.start_datetime
-              )
-            )}
-          </p>
 
-          ${locationHtml}
+          ${
+            locationText
+              ? `
+                <div class="venue-popup-location">
 
-          ${costHtml}
+                  ${escapeHtml(
+                    locationText
+                  )}
 
-          ${categoriesHtml}
+                </div>
+              `
+              : ""
+          }
 
-          ${linkHtml}
+
+          <div class="venue-popup-count">
+
+            ${sortedEvents.length}
+            ${
+              sortedEvents.length === 1
+                ? "event"
+                : "events"
+            }
+            at this location
+
+          </div>
+
+
+          ${eventItemsHtml}
 
         </div>
 
@@ -1565,9 +1756,9 @@
     }
 
 
-    /* ----------------------------------------------------
-       SCROLL SIDEBAR TO SELECTED EVENT
-    ---------------------------------------------------- */
+    /* ====================================================
+       SIDEBAR SCROLL
+    ==================================================== */
 
     function scrollEventIntoView(
       eventId
@@ -1582,11 +1773,13 @@
       if (item) {
 
         item.scrollIntoView({
+
           behavior:
             "smooth",
 
           block:
             "nearest"
+
         });
 
       }
@@ -1594,9 +1787,36 @@
     }
 
 
-    /* ----------------------------------------------------
+    /* ====================================================
+       MAP MOVEMENT
+    ==================================================== */
+
+    /*
+     * Every time the map finishes moving, update
+     * the sidebar so that it reflects the current
+     * geographic area.
+     *
+     * This includes:
+     *
+     * - clicking a cluster
+     * - zooming
+     * - panning
+     * - navigation controls
+     */
+
+    map.on(
+      "moveend",
+      () => {
+
+        renderEventList();
+
+      }
+    );
+
+
+    /* ====================================================
        FILTER EVENTS
-    ---------------------------------------------------- */
+    ==================================================== */
 
     document
       .getElementById("search")
@@ -1632,14 +1852,22 @@
       );
 
 
+    /* ====================================================
+       RESET
+    ==================================================== */
+
     document
-      .getElementById("resetFilters")
+      .getElementById(
+        "resetFilters"
+      )
       .addEventListener(
         "click",
         () => {
 
           document
-            .getElementById("search")
+            .getElementById(
+              "search"
+            )
             .value = "";
 
 
@@ -1651,12 +1879,16 @@
 
 
           document
-            .getElementById("fromDate")
+            .getElementById(
+              "fromDate"
+            )
             .value = "";
 
 
           document
-            .getElementById("toDate")
+            .getElementById(
+              "toDate"
+            )
             .value = "";
 
 
@@ -1688,9 +1920,9 @@
       );
 
 
-    /* ----------------------------------------------------
-       CURSOR
-    ---------------------------------------------------- */
+    /* ====================================================
+       POINTER CURSORS
+    ==================================================== */
 
     map.on(
       "mouseenter",
@@ -1744,9 +1976,9 @@
     );
 
 
-    /* ----------------------------------------------------
+    /* ====================================================
        DATE HELPERS
-    ---------------------------------------------------- */
+    ==================================================== */
 
     function parseEventDate(value) {
 
@@ -1784,11 +2016,10 @@
       }
 
 
-      return value
-        .substring(
-          0,
-          10
-        );
+      return value.substring(
+        0,
+        10
+      );
 
     }
 
@@ -1845,9 +2076,9 @@
     }
 
 
-    /* ----------------------------------------------------
+    /* ====================================================
        HTML ESCAPING
-    ---------------------------------------------------- */
+    ==================================================== */
 
     function escapeHtml(value) {
 
@@ -1889,9 +2120,9 @@
     }
 
 
-    /* ----------------------------------------------------
+    /* ====================================================
        START
-    ---------------------------------------------------- */
+    ==================================================== */
 
     map.on(
       "load",
