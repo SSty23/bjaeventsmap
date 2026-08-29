@@ -1442,61 +1442,64 @@
        RED MARKER CLICK
     ==================================================== */
 
-    map.on(
-      "click",
-      "unclustered-point",
-      event => {
+map.on(
+  "click",
+  "unclustered-point",
+  event => {
+console.log("RED MARKER CLICK", event.features);
+    const feature =
+      event.features?.[0];
 
-        const feature =
-          event.features?.[0];
+    if (!feature) {
+      return;
+    }
 
+    const eventId =
+      feature.properties.id;
 
-        if (!feature) {
+    const clickedEvent =
+      filteredEvents.find(
+        item =>
+          String(item.id) ===
+          String(eventId)
+      );
 
-          return;
+    if (!clickedEvent) {
+      console.log(
+        "Could not find clicked event:",
+        eventId
+      );
 
-        }
+      return;
+    }
 
+    const venueEvents =
+      getEventsAtLocation(
+        clickedEvent.longitude,
+        clickedEvent.latitude
+      );
 
-        const coordinates =
-          feature.geometry.coordinates;
+    selectedEventId =
+      clickedEvent.id;
 
+    renderEventList();
 
-        const venueEvents =
-          getEventsAtLocation(
-            Number(coordinates[0]),
-            Number(coordinates[1])
-          );
-
-
-        if (
-          venueEvents.length === 0
-        ) {
-
-          return;
-
-        }
-
-
-        selectedEventId =
-          venueEvents[0].id;
-
-
-        renderEventList();
-
-
-        showLocationPopup(
-          venueEvents,
-          coordinates
-        );
-
-
-        scrollEventIntoView(
-          venueEvents[0].id
-        );
-
-      }
+    showLocationPopup(
+      venueEvents.length
+        ? venueEvents
+        : [clickedEvent],
+      [
+        clickedEvent.longitude,
+        clickedEvent.latitude
+      ]
     );
+
+    scrollEventIntoView(
+      clickedEvent.id
+    );
+
+  }
+);
 
 
     /* ====================================================
