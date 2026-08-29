@@ -118,9 +118,9 @@
      * ----------------------------------------------------
      */
 
-    const UK_BOUNDS = [
-  [-8.8, 49.8],  // south-west
-  [2.2, 60.9]    // north-east
+const UK_BOUNDS = [
+  [-8.8, 49.8],
+  [2.2, 60.9]
 ];
 
 const map = new maplibregl.Map({
@@ -133,10 +133,13 @@ const map = new maplibregl.Map({
 
   zoom: 5,
 
-  // Prevent users from panning outside the UK area
+  // Stops users panning away from the UK
   maxBounds: UK_BOUNDS,
 
-  // Prevent repeated copies of the world appearing
+  // Stops users zooming out to the whole world
+  minZoom: 4.5,
+
+  // Stops duplicate world copies
   renderWorldCopies: false,
 
   fadeDuration: 0
@@ -499,23 +502,12 @@ map.addLayer({
         }
 
 
-        map.fitBounds(
-          bounds,
-          {
-
-            padding:
-              50,
-
-            /*
-             * Prevent one geographically isolated
-             * event from zooming us in too far.
-             */
-
-            maxZoom:
-              8
-
-          }
-        );
+map.fitBounds(
+  UK_BOUNDS,
+  {
+    padding: 25
+  }
+);
 
       }
 
