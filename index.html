@@ -880,7 +880,22 @@
 
       });
 
+map.addLayer({
+  id: "unclustered-point-hitbox",
+  type: "circle",
+  source: "events",
 
+  filter: [
+    "!",
+    ["has", "point_count"]
+  ],
+
+  paint: {
+    "circle-radius": 20,
+    "circle-color": "#000000",
+    "circle-opacity": 0
+  }
+});
       map.addLayer({
 
         id:
@@ -1445,7 +1460,7 @@
 
     map.on(
       "click",
-      "unclustered-point",
+      "unclustered-point-hitbox",
       event => {
 
         const feature =
@@ -1952,7 +1967,7 @@
 
     map.on(
       "mouseenter",
-      "unclustered-point",
+      "unclustered-point-hitbox",
       () => {
 
         map.getCanvas()
@@ -1965,7 +1980,7 @@
 
     map.on(
       "mouseleave",
-      "unclustered-point",
+      "unclustered-point-hitbox",
       () => {
 
         map.getCanvas()
