@@ -751,7 +751,7 @@
 
 
     /* ====================================================
-       MAP SOURCE / CLUSTERS
+       MAP SOURCE / EVENT MARKERS
     ==================================================== */
 
     function setupEventSource() {
@@ -759,127 +759,15 @@
       map.addSource(
         "events",
         {
-
           type:
             "geojson",
 
           data:
-            eventsToGeoJSON(allEvents),
-
-          cluster:
-            true,
-
-          clusterMaxZoom:
-            14,
-
-          clusterRadius:
-            50
-
+            eventsToGeoJSON(allEvents)
         }
       );
 
 
-      map.addLayer({
-
-        id:
-          "clusters",
-
-        type:
-          "circle",
-
-        source:
-          "events",
-
-        filter:
-          ["has", "point_count"],
-
-        paint: {
-
-          "circle-color": [
-
-            "step",
-
-            ["get", "point_count"],
-
-            "#1976d2",
-
-            10,
-            "#1565c0",
-
-            25,
-            "#0d47a1"
-
-          ],
-
-          "circle-radius": [
-
-            "step",
-
-            ["get", "point_count"],
-
-            18,
-
-            10,
-            22,
-
-            25,
-            27,
-
-            50,
-            32
-
-          ],
-
-          "circle-stroke-width":
-            2,
-
-          "circle-stroke-color":
-            "#ffffff"
-
-        }
-
-      });
-
-
-      map.addLayer({
-
-        id:
-          "cluster-count",
-
-        type:
-          "symbol",
-
-        source:
-          "events",
-
-        filter:
-          ["has", "point_count"],
-
-        layout: {
-
-          "text-field":
-            "{point_count_abbreviated}",
-
-          "text-font": [
-            "Noto Sans Regular"
-          ],
-
-          "text-size":
-            13,
-
-          "text-allow-overlap":
-            true
-
-        },
-
-        paint: {
-
-          "text-color":
-            "#ffffff"
-
-        }
-
-      });
       map.addLayer({
 
         id:
@@ -890,11 +778,6 @@
 
         source:
           "events",
-
-        filter: [
-          "!",
-          ["has", "point_count"]
-        ],
 
         paint: {
 
@@ -1372,70 +1255,6 @@
       );
 
     }
-
-
-    /* ====================================================
-       CLUSTER CLICK
-    ==================================================== */
-
-    map.on(
-      "click",
-      "clusters",
-      async event => {
-
-        const features =
-          map.queryRenderedFeatures(
-            event.point,
-            {
-              layers: [
-                "clusters"
-              ]
-            }
-          );
-
-
-        if (!features.length) {
-
-          return;
-
-        }
-
-
-        const cluster =
-          features[0];
-
-
-        const clusterId =
-          cluster.properties
-            .cluster_id;
-
-
-        const source =
-          map.getSource(
-            "events"
-          );
-
-
-        const zoom =
-          await source
-            .getClusterExpansionZoom(
-              clusterId
-            );
-
-
-        map.easeTo({
-
-          center:
-            cluster
-              .geometry
-              .coordinates,
-
-          zoom
-
-        });
-
-      }
-    );
 
 
     /* ====================================================
@@ -1925,34 +1744,7 @@ console.log("RED MARKER CLICK", event.features);
     /* ====================================================
        POINTER CURSORS
     ==================================================== */
-
-    map.on(
-      "mouseenter",
-      "clusters",
-      () => {
-
-        map.getCanvas()
-          .style.cursor =
-            "pointer";
-
-      }
-    );
-
-
-    map.on(
-      "mouseleave",
-      "clusters",
-      () => {
-
-        map.getCanvas()
-          .style.cursor =
-            "";
-
-      }
-    );
-
-
-    map.on(
+map.on(
       "mouseenter",
       "unclustered-point",
       () => {
