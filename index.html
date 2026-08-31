@@ -39,6 +39,5188 @@
       margin: 0;
       width: 100%;
       height: 100%;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      color: var(--text);
+      background: var(--surface);
+    }
+
+    body {
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    button,
+    input,
+    select {
+      font: inherit;
+    }
+
+    button:focus-visible,
+    input:focus-visible,
+    select:focus-visible,
+    .event-item:focus-visible {
+      outline: 3px solid rgba(3, 0, 189, 0.2);
+      outline-offset: 2px;
+    }
+
+    header {
+      min-height: 58px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      padding: 10px 18px;
+      background: var(--brand);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.16);
+      z-index: 20;
+    }
+
+    .header-title {
+      min-width: 0;
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+    }
+
+    header h1 {
+      margin: 0;
+      color: #fff;
+      font-size: 21px;
+      line-height: 1.2;
+      white-space: nowrap;
+    }
+
+    #status {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 7px;
+      min-width: 0;
+      color: rgba(255, 255, 255, 0.82);
+      font-size: 12px;
+      line-height: 1.25;
+      text-align: right;
+      white-space: nowrap;
+    }
+
+    .header-actions {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 10px;
+      min-width: 0;
+    }
+
+    #aboutButton {
+      min-height: 30px;
+      padding: 5px 9px;
+      border: 1px solid rgba(255, 255, 255, 0.35);
+      border-radius: 6px;
+      background: rgba(255, 255, 255, 0.10);
+      color: #fff;
+      cursor: pointer;
+      font-size: 11px;
+      font-weight: 800;
+    }
+
+    #aboutButton:hover,
+    #aboutButton[aria-expanded="true"] {
+      background: rgba(255, 255, 255, 0.20);
+    }
+
+    #aboutPanel {
+      position: absolute;
+      top: calc(100% + 9px);
+      right: 0;
+      z-index: 50;
+      width: min(380px, calc(100vw - 24px));
+      padding: 14px 15px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: #fff;
+      color: var(--text);
+      box-shadow: 0 8px 28px rgba(0, 0, 0, 0.20);
+      text-align: left;
+      white-space: normal;
+    }
+
+    #aboutPanel h2 {
+      margin: 0 0 8px;
+      color: #252a31;
+      font-size: 16px;
+      line-height: 1.3;
+    }
+
+    #aboutPanel p {
+      margin: 0 0 9px;
+      color: #596274;
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    #aboutPanel p:last-child {
+      margin-bottom: 0;
+    }
+
+    #aboutPanel strong {
+      color: #343b45;
+    }
+
+    .status-spinner {
+      width: 13px;
+      height: 13px;
+      flex: 0 0 auto;
+      border: 2px solid rgba(255, 255, 255, 0.35);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    #app {
+      flex: 1;
+      min-height: 0;
+      display: flex;
+    }
+
+    /* --------------------------------------------
+       SIDEBAR
+    -------------------------------------------- */
+
+    #sidebar {
+      width: 360px;
+      min-width: 320px;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      z-index: 10;
+    }
+
+    #mobilePanelControls {
+      display: none;
+    }
+
+    #filters {
+      padding: 11px 12px 10px;
+      background: var(--surface-soft);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .filter-group {
+      margin-bottom: 8px;
+    }
+
+    .filter-group label {
+      display: block;
+      margin-bottom: 4px;
+      color: #4c5564;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .filter-group input,
+    .filter-group select {
+      width: 100%;
+      height: 36px;
+      padding: 7px 9px;
+      border: 1px solid #cfd5dc;
+      border-radius: 6px;
+      background: #fff;
+      color: var(--text);
+      font-size: 13px;
+    }
+
+    .filter-group input:hover,
+    .filter-group select:hover {
+      border-color: #aeb6c1;
+    }
+
+    .filter-group input:disabled,
+    .filter-group select:disabled,
+    button:disabled {
+      cursor: not-allowed;
+      opacity: 0.55;
+    }
+
+    .date-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 7px;
+    }
+
+
+    .location-search-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 6px;
+    }
+
+    #applyDistance {
+      min-width: 62px;
+      height: 36px;
+      padding: 7px 10px;
+      border: 1px solid var(--brand);
+      border-radius: 6px;
+      background: var(--brand);
+      color: #fff;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    #applyDistance:hover:not(:disabled) {
+      background: var(--brand-dark);
+    }
+
+    #distanceStatus {
+      min-height: 16px;
+      margin-top: 4px;
+      color: var(--muted);
+      font-size: 10px;
+      line-height: 1.35;
+    }
+
+    #distanceStatus.error {
+      color: #b42318;
+    }
+
+    .filter-actions {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 1px;
+    }
+
+    #resetFilters {
+      min-height: 32px;
+      padding: 6px 10px;
+      border: 1px solid #c8ced6;
+      border-radius: 6px;
+      background: #fff;
+      color: #4d5562;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    #resetFilters:hover:not(:disabled) {
+      background: #f0f2f5;
+      border-color: #aeb6c1;
+    }
+
+    #resultsPanel {
+      flex: 1;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+      background: #fff;
+    }
+
+    .event-view-toggle {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4px;
+      padding: 8px 8px 7px;
+      border-bottom: 1px solid var(--border);
+      background: #fff;
+    }
+
+    .event-view-button {
+      min-height: 34px;
+      padding: 6px 8px;
+      border: 1px solid #cfd5dc;
+      border-radius: 6px;
+      background: #fff;
+      color: #505966;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .event-view-button:hover:not(:disabled) {
+      border-color: #aeb6c1;
+      background: #f7f8fa;
+    }
+
+    .event-view-button.active {
+      border-color: var(--brand);
+      background: var(--brand);
+      color: #fff;
+    }
+
+    .online-mode-note {
+      padding: 7px 12px;
+      border-bottom: 1px solid var(--border);
+      background: #f7f8ff;
+      color: #596274;
+      font-size: 10px;
+      line-height: 1.4;
+    }
+
+    #resultCount {
+      flex: 0 0 auto;
+      padding: 9px 12px;
+      border-bottom: 1px solid var(--border);
+      background: #fff;
+      color: #4b5563;
+      font-size: 12px;
+      font-weight: 700;
+      line-height: 1.35;
+    }
+
+    #eventList {
+      flex: 1;
+      min-height: 0;
+      overflow-y: auto;
+      padding: 7px 8px 10px;
+      background: #f9fafb;
+    }
+
+    .event-item {
+      position: relative;
+      margin-bottom: 7px;
+      padding: 11px 12px 10px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: #fff;
+      box-shadow: var(--shadow);
+      cursor: pointer;
+      transition:
+        border-color 120ms ease,
+        box-shadow 120ms ease,
+        background 120ms ease;
+    }
+
+    .event-item:hover {
+      border-color: #c5ccd5;
+      background: #fcfcfd;
+    }
+
+    .event-item.selected {
+      border-color: #6f7ce8;
+      background: var(--brand-soft);
+      box-shadow:
+        0 0 0 2px rgba(3, 0, 189, 0.11),
+        var(--shadow);
+    }
+
+    .event-date {
+      margin-bottom: 4px;
+      color: #3349a6;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.01em;
+    }
+
+    .event-title {
+      margin-bottom: 5px;
+      color: #202124;
+      font-size: 14px;
+      font-weight: 700;
+      line-height: 1.32;
+    }
+
+    .event-location {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.4;
+    }
+
+
+    .event-distance {
+      margin-top: 5px;
+      color: #3349a6;
+      font-size: 11px;
+      font-weight: 800;
+    }
+
+
+    .online-badge {
+      display: inline-block;
+      margin-bottom: 5px;
+      padding: 3px 7px;
+      border-radius: 999px;
+      background: var(--brand-soft);
+      color: var(--brand);
+      font-size: 9px;
+      font-weight: 900;
+      letter-spacing: 0.06em;
+    }
+
+    .event-official-link {
+      display: inline-block;
+      margin-top: 9px;
+      padding: 6px 8px;
+      border-radius: 5px;
+      background: var(--brand);
+      color: #fff;
+      text-decoration: none;
+      font-size: 11px;
+      font-weight: 800;
+    }
+
+    .event-official-link:hover {
+      background: var(--brand-dark);
+    }
+
+    .event-categories {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      margin-top: 7px;
+    }
+
+    .event-category,
+    .popup-category {
+      display: inline-block;
+      border: 1px solid #dbe2e9;
+      border-radius: 999px;
+      background: #f1f4f7;
+      color: #53606f;
+      font-weight: 600;
+    }
+
+    .event-category {
+      padding: 2px 6px;
+      font-size: 10px;
+    }
+
+    .empty-state {
+      margin: 18px 8px;
+      padding: 20px 16px;
+      border: 1px dashed #cfd5dd;
+      border-radius: var(--radius);
+      background: #fff;
+      color: var(--muted);
+      text-align: center;
+    }
+
+    .empty-state strong {
+      display: block;
+      margin-bottom: 5px;
+      color: #3f4752;
+      font-size: 13px;
+    }
+
+    .empty-state span {
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    /* --------------------------------------------
+       LOADING SKELETON
+    -------------------------------------------- */
+
+    .skeleton-card {
+      margin-bottom: 7px;
+      padding: 12px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: #fff;
+    }
+
+    .skeleton-line {
+      height: 10px;
+      margin-bottom: 8px;
+      border-radius: 5px;
+      background:
+        linear-gradient(
+          90deg,
+          #edf0f3 25%,
+          #f7f8fa 50%,
+          #edf0f3 75%
+        );
+      background-size: 200% 100%;
+      animation: skeleton 1.2s ease-in-out infinite;
+    }
+
+    .skeleton-line.short {
+      width: 42%;
+    }
+
+    .skeleton-line.medium {
+      width: 70%;
+    }
+
+    .skeleton-line:last-child {
+      margin-bottom: 0;
+    }
+
+    @keyframes skeleton {
+      0% {
+        background-position: 200% 0;
+      }
+
+      100% {
+        background-position: -200% 0;
+      }
+    }
+
+    /* --------------------------------------------
+       MAP
+    -------------------------------------------- */
+
+    #mapWrap {
+      position: relative;
+      flex: 1;
+      min-width: 0;
+      min-height: 0;
+    }
+
+    #map {
+      position: absolute;
+      inset: 0;
+    }
+
+    #mapModeNotice {
+      position: absolute;
+      top: 10px;
+      left: 50%;
+      z-index: 5;
+      max-width: min(360px, calc(100% - 120px));
+      padding: 7px 10px;
+      border: 1px solid rgba(0, 0, 0, 0.12);
+      border-radius: 6px;
+      background: rgba(255, 255, 255, 0.96);
+      color: #596274;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.14);
+      font-size: 11px;
+      font-weight: 700;
+      line-height: 1.35;
+      text-align: center;
+      transform: translateX(-50%);
+    }
+
+    [hidden] {
+      display: none !important;
+    }
+
+    .maplibregl-popup-content {
+      width: 310px;
+      max-width: 310px;
+      max-height: 420px;
+      overflow-y: auto;
+      padding: 13px;
+      border-radius: var(--radius);
+      box-shadow: 0 5px 20px rgba(0, 0, 0, 0.18);
+    }
+
+    .venue-popup-title {
+      margin: 0 0 4px;
+      color: #252a31;
+      font-size: 16px;
+      line-height: 1.3;
+    }
+
+    .venue-popup-location {
+      margin: 0 0 8px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .venue-popup-count {
+      margin: 0 0 8px;
+      color: #535c69;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .popup-event {
+      padding: 9px 0;
+      border-top: 1px solid var(--border);
+    }
+
+    .popup-event:first-of-type {
+      border-top: 0;
+    }
+
+    .popup-event-date {
+      margin-bottom: 3px;
+      color: #3349a6;
+      font-size: 11px;
+      font-weight: 800;
+    }
+
+    .popup-event-title {
+      color: #292f36;
+      font-size: 13px;
+      font-weight: 700;
+      line-height: 1.35;
+    }
+
+    .popup-event-cost {
+      margin-top: 4px;
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+
+    .popup-event-distance {
+      margin-top: 4px;
+      color: #3349a6;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .popup-categories {
+      margin-top: 5px;
+    }
+
+    .popup-category {
+      margin: 2px 2px 2px 0;
+      padding: 2px 5px;
+      font-size: 9px;
+    }
+
+    .popup-event a {
+      display: inline-block;
+      margin-top: 6px;
+      padding: 5px 7px;
+      border-radius: 5px;
+      background: var(--brand);
+      color: #fff;
+      text-decoration: none;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .popup-event a:hover {
+      background: var(--brand-dark);
+    }
+
+
+    /* --------------------------------------------
+       FLOATING MAP LAYOUT
+    -------------------------------------------- */
+
+    html,
+    body {
+      overflow: hidden;
+      background: #eef1f4;
+    }
+
+    body {
+      display: block;
+    }
+
+    /*
+     * The old header is retained structurally so the
+     * existing status/About JavaScript does not change,
+     * but it is now a small floating information control
+     * in the bottom-left instead of a page-wide bar.
+     */
+    header {
+      position: fixed;
+      left: 12px;
+      bottom: 12px;
+      z-index: 40;
+      min-height: 0;
+      width: auto;
+      padding: 0;
+      border: 0;
+      background: transparent;
+      pointer-events: none;
+    }
+
+    .header-title {
+      display: none;
+    }
+
+    .header-actions {
+      position: relative;
+      gap: 8px;
+      padding: 6px 7px 6px 10px;
+      border: 1px solid rgba(17, 24, 39, 0.12);
+      border-radius: 9px;
+      background: rgba(255, 255, 255, 0.96);
+      box-shadow:
+        0 2px 8px rgba(17, 24, 39, 0.10),
+        0 8px 24px rgba(17, 24, 39, 0.08);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      pointer-events: auto;
+    }
+
+    #status {
+      color: #4b5563;
+      font-size: 11px;
+      font-weight: 650;
+    }
+
+    .status-spinner {
+      width: 11px;
+      height: 11px;
+      border-color: rgba(3, 0, 189, 0.20);
+      border-top-color: var(--brand);
+    }
+
+    #aboutButton {
+      min-height: 28px;
+      padding: 4px 8px;
+      border: 1px solid #d6dbe2;
+      border-radius: 6px;
+      background: #f8f9fb;
+      color: #46505d;
+      font-size: 10px;
+      font-weight: 750;
+    }
+
+    #aboutButton:hover,
+    #aboutButton[aria-expanded="true"] {
+      border-color: #bcc4ce;
+      background: #eef1f5;
+    }
+
+    #aboutPanel {
+      top: auto;
+      right: auto;
+      bottom: calc(100% + 9px);
+      left: 0;
+      width: min(390px, calc(100vw - 24px));
+      border-radius: 10px;
+      box-shadow: 0 12px 36px rgba(17, 24, 39, 0.18);
+    }
+
+    /*
+     * Full viewport map.
+     */
+    #app {
+      position: fixed;
+      inset: 0;
+      display: block;
+      min-height: 0;
+    }
+
+    #mapWrap {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      min-width: 0;
+      min-height: 0;
+    }
+
+    #map {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+    }
+
+    /*
+     * The sidebar is now only a transparent positioning
+     * layer over the map.
+     */
+    #sidebar {
+      position: absolute;
+      inset: 0;
+      z-index: 20;
+      display: block;
+      width: auto;
+      min-width: 0;
+      min-height: 0;
+      border: 0;
+      background: transparent;
+      pointer-events: none;
+    }
+
+    /*
+     * Floating filter panel, top-right.
+     */
+    #filters {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      width: min(340px, calc(100vw - 78px));
+      max-height: 51vh;
+      overflow-y: auto;
+      padding: 12px;
+      border: 1px solid rgba(17, 24, 39, 0.12);
+      border-radius: 11px;
+      background: rgba(255, 255, 255, 0.96);
+      box-shadow:
+        0 2px 8px rgba(17, 24, 39, 0.09),
+        0 10px 28px rgba(17, 24, 39, 0.08);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      pointer-events: auto;
+    }
+
+    .filter-group label {
+      color: #56606e;
+      font-weight: 700;
+    }
+
+    .filter-group input,
+    .filter-group select {
+      border-color: #d5dae1;
+      border-radius: 7px;
+      background: rgba(255, 255, 255, 0.98);
+    }
+
+    #applyDistance,
+    #resetFilters,
+    .event-view-button {
+      border-radius: 7px;
+    }
+
+    /*
+     * Floating results panel, bottom-right.
+     */
+    #resultsPanel {
+      position: absolute;
+      right: 12px;
+      bottom: 12px;
+      z-index: 1;
+      display: flex;
+      width: min(370px, calc(100vw - 78px));
+      height: min(44vh, 440px);
+      min-height: 220px;
+      overflow: hidden;
+      border: 1px solid rgba(17, 24, 39, 0.12);
+      border-radius: 11px;
+      background: rgba(255, 255, 255, 0.97);
+      box-shadow:
+        0 2px 8px rgba(17, 24, 39, 0.09),
+        0 10px 28px rgba(17, 24, 39, 0.08);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      pointer-events: auto;
+    }
+
+    .event-view-toggle {
+      border-radius: 11px 11px 0 0;
+    }
+
+    #eventList {
+      background: rgba(248, 249, 251, 0.96);
+    }
+
+    .event-item {
+      border-radius: 8px;
+      box-shadow: none;
+    }
+
+    /*
+     * Compact MapLibre controls on the top-left.
+     */
+    .maplibregl-ctrl-top-left {
+      top: 8px;
+      left: 8px;
+    }
+
+    .maplibregl-ctrl-top-left .maplibregl-ctrl {
+      margin: 4px 0 0 4px;
+    }
+
+    .maplibregl-ctrl-group button {
+      width: 27px;
+      height: 27px;
+    }
+
+    .maplibregl-ctrl-group .maplibregl-ctrl-icon {
+      background-size: 18px 18px;
+    }
+
+    .maplibregl-ctrl-group button svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    #mapModeNotice {
+      top: 12px;
+      max-width: min(360px, calc(100% - 440px));
+    }
+
+    /* --------------------------------------------
+       MOBILE
+    -------------------------------------------- */
+
+    @media (max-width: 750px) {
+
+      header {
+        position: fixed;
+        left: 8px;
+        bottom: 8px;
+        z-index: 45;
+        padding: 0;
+      }
+
+      .header-actions {
+        gap: 5px;
+        padding: 5px 6px 5px 8px;
+      }
+
+      #status {
+        max-width: none;
+        font-size: 9px;
+        white-space: nowrap;
+      }
+
+      #aboutButton {
+        min-height: 26px;
+        padding: 3px 6px;
+        font-size: 9px;
+      }
+
+      #aboutPanel {
+        position: fixed;
+        top: auto;
+        right: 8px;
+        bottom: 48px;
+        left: 8px;
+        width: auto;
+        max-height: calc(100vh - 70px);
+        overflow-y: auto;
+      }
+
+      #app,
+      #mapWrap,
+      #map {
+        position: fixed;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+      }
+
+      #sidebar {
+        position: fixed;
+        inset: 0;
+        width: auto;
+        min-width: 0;
+        border: 0;
+        background: transparent;
+      }
+
+      /*
+       * Floating mobile Filters / Events switch.
+       */
+      #mobilePanelControls {
+        position: absolute;
+        top: 8px;
+        right: 8px;
+        z-index: 30;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        width: 176px;
+        overflow: hidden;
+        gap: 1px;
+        border: 1px solid rgba(17, 24, 39, 0.12);
+        border-radius: 8px;
+        background: #dfe3e8;
+        box-shadow: 0 4px 16px rgba(17, 24, 39, 0.12);
+        pointer-events: auto;
+      }
+
+      .mobile-panel-button {
+        min-height: 34px;
+        border: 0;
+        background: rgba(255, 255, 255, 0.97);
+        color: #4a5563;
+        cursor: pointer;
+        font-size: 11px;
+        font-weight: 750;
+      }
+
+      .mobile-panel-button.active {
+        background: var(--brand);
+        color: #fff;
+      }
+
+      #filters,
+      #resultsPanel {
+        display: none;
+      }
+
+      #sidebar.mobile-filters-open #filters {
+        position: absolute;
+        top: 50px;
+        right: 8px;
+        left: 8px;
+        display: block;
+        width: auto;
+        max-height: calc(100vh - 108px);
+        overflow-y: auto;
+        pointer-events: auto;
+      }
+
+      #sidebar.mobile-results-open #resultsPanel {
+        position: absolute;
+        top: 50px;
+        right: 8px;
+        bottom: 52px;
+        left: 8px;
+        display: flex;
+        width: auto;
+        height: auto;
+        min-height: 0;
+        max-height: none;
+        pointer-events: auto;
+      }
+
+      #eventList {
+        padding-bottom: 8px;
+      }
+
+      .maplibregl-ctrl-top-left {
+        top: 5px;
+        left: 5px;
+      }
+
+      .maplibregl-ctrl-group button {
+        width: 25px;
+        height: 25px;
+      }
+
+      .maplibregl-ctrl-group .maplibregl-ctrl-icon {
+        background-size: 16px 16px;
+      }
+
+      .maplibregl-ctrl-group button svg {
+        width: 15px;
+        height: 15px;
+      }
+
+      #mapModeNotice {
+        top: 52px;
+        left: 8px;
+        width: calc(100vw - 16px);
+        max-width: none;
+        transform: none;
+      }
+
+      .maplibregl-popup-content {
+        width: min(280px, calc(100vw - 34px));
+        max-width: min(280px, calc(100vw - 34px));
+        max-height: 52vh;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <header>
+    <div class="header-title">
+      <h1>UK Judo Events Map</h1>
+    </div>
+
+    <div class="header-actions">
+
+      <div
+        id="status"
+        aria-live="polite"
+      >
+        <span class="status-spinner" aria-hidden="true"></span>
+        <span>Loading events…</span>
+      </div>
+
+      <button
+        id="aboutButton"
+        type="button"
+        aria-expanded="false"
+        aria-controls="aboutPanel"
+      >
+        About
+      </button>
+
+      <div
+        id="aboutPanel"
+        hidden
+      >
+        <h2>About UK Judo Events Map</h2>
+
+        <p>
+          This website is an independent event-discovery tool designed
+          to make it quicker and easier for judoka to find nearby and
+          online judo events across the UK.
+        </p>
+
+        <p>
+          Event information is collected from publicly available
+          listings published by judo organisations and reorganised into
+          a searchable map and event list.
+        </p>
+
+        <p>
+          <strong>
+            This website is not affiliated with, endorsed by, or
+            operated by British Judo or any other judo organisation.
+          </strong>
+        </p>
+
+        <p>
+          This website is not an authoritative source of event
+          information. Event details can change or may be incomplete.
+          Always check the organiser's official event page for the
+          latest dates, venue details, eligibility requirements and
+          entry information before travelling or entering.
+        </p>
+      </div>
+
+    </div>
+  </header>
+
+
+  <div id="app">
+
+    <aside id="sidebar">
+
+      <div id="mobilePanelControls">
+        <button
+          id="mobileFiltersButton"
+          class="mobile-panel-button"
+          type="button"
+          aria-expanded="false"
+          aria-controls="filters"
+        >
+          Filters
+        </button>
+
+        <button
+          id="mobileEventsButton"
+          class="mobile-panel-button"
+          type="button"
+          aria-expanded="false"
+          aria-controls="resultsPanel"
+        >
+          Events
+        </button>
+      </div>
+
+
+      <div id="filters">
+
+        <div class="filter-group">
+          <label for="search">
+            Search event names or venues
+          </label>
+
+          <input
+            id="search"
+            type="search"
+            placeholder="e.g. grading, coaching, judo club..."
+            disabled
+          />
+        </div>
+
+
+        <div class="filter-group">
+          <label for="distanceLocation">
+            Near postcode or town
+          </label>
+
+          <div class="location-search-row">
+
+            <input
+              id="distanceLocation"
+              type="search"
+              placeholder="e.g. AL3 5XA or Cardiff"
+              autocomplete="postal-code"
+              disabled
+            />
+
+            <button
+              id="applyDistance"
+              type="button"
+              disabled
+            >
+              Find
+            </button>
+
+          </div>
+
+          <div
+            id="distanceStatus"
+            aria-live="polite"
+          ></div>
+
+        </div>
+
+
+        <div class="filter-group">
+          <label for="distanceRadius">
+            Within
+          </label>
+
+          <select
+            id="distanceRadius"
+            disabled
+          >
+            <option value="10">10 miles</option>
+            <option value="25" selected>25 miles</option>
+            <option value="50">50 miles</option>
+            <option value="100">100 miles</option>
+          </select>
+        </div>
+
+
+        <div class="filter-group">
+          <label for="categoryFilter">
+            Event type
+          </label>
+
+          <select
+            id="categoryFilter"
+            disabled
+          >
+            <option value="">
+              All event types
+            </option>
+          </select>
+        </div>
+
+
+        <div class="date-row">
+
+          <div class="filter-group">
+            <label for="fromDate">
+              From
+            </label>
+
+            <input
+              id="fromDate"
+              type="date"
+              disabled
+            />
+          </div>
+
+
+          <div class="filter-group">
+            <label for="toDate">
+              To
+            </label>
+
+            <input
+              id="toDate"
+              type="date"
+              disabled
+            />
+          </div>
+
+        </div>
+
+
+        <div class="filter-actions">
+          <button
+            id="resetFilters"
+            type="button"
+            disabled
+          >
+            Reset filters
+          </button>
+        </div>
+
+      </div>
+
+
+      <div id="resultsPanel">
+
+        <div
+          class="event-view-toggle"
+          role="group"
+          aria-label="Event view"
+        >
+          <button
+            id="mapEventsView"
+            class="event-view-button active"
+            type="button"
+            aria-pressed="true"
+          >
+            Map events
+          </button>
+
+          <button
+            id="onlineEventsView"
+            class="event-view-button"
+            type="button"
+            aria-pressed="false"
+          >
+            Online events
+          </button>
+        </div>
+
+        <div
+          id="onlineModeNote"
+          class="online-mode-note"
+          hidden
+        >
+          Online events are not filtered by postcode, distance or map area.
+        </div>
+
+        <div id="resultCount">
+          Loading events…
+        </div>
+
+        <div id="eventList"></div>
+
+      </div>
+
+    </aside>
+
+
+    <div id="mapWrap">
+
+      <div id="map"></div>
+
+      <div
+        id="mapModeNotice"
+        hidden
+      >
+        Online events do not have map locations.
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <script type="module">
+
+    import * as maplibregl
+      from "https://unpkg.com/maplibre-gl@6.6.0/dist/maplibre-gl.mjs";
+
+
+    /* ====================================================
+       CONFIG
+    ==================================================== */
+
+    const API_URL =
+      "https://judo-events-api.judoevents.workers.dev/api/events";
+
+
+    const GEOCODER_URL =
+      "https://judo-events-geocoder.judoevents.workers.dev/search-location";
+
+
+    const UK_BOUNDS = [
+      [-8.8, 49.8],
+      [2.2, 60.9]
+    ];
+
+
+    /* ====================================================
+       STATE
+    ==================================================== */
+
+    let allEvents = [];
+
+    let filteredEvents = [];
+
+    let selectedEventId = null;
+
+    let activePopup = null;
+
+    let dataLoaded = false;
+
+    /*
+     * "map" = physical events with coordinates.
+     * "online" = online/virtual events.
+     */
+    let viewMode = "map";
+
+
+    /*
+     * Active postcode/town search origin.
+     *
+     * {
+     *   query,
+     *   latitude,
+     *   longitude,
+     *   displayName
+     * }
+     */
+    let distanceOrigin = null;
+
+
+    /* ====================================================
+       MAP
+    ==================================================== */
+
+    const map = new maplibregl.Map({
+
+      container:
+        "map",
+
+      style:
+        "https://tiles.openfreemap.org/styles/liberty",
+
+      bounds:
+        UK_BOUNDS,
+
+      fitBoundsOptions: {
+        padding: 30
+      },
+
+      renderWorldCopies:
+        false,
+
+      fadeDuration:
+        0
+
+    });
+
+
+    map.addControl(
+      new maplibregl.NavigationControl(),
+      "top-left"
+    );
+
+
+    class ResetMapControl {
+
+      onAdd(mapInstance) {
+
+        this.map =
+          mapInstance;
+
+
+        this.container =
+          document.createElement(
+            "div"
+          );
+
+
+        this.container.className =
+          "maplibregl-ctrl maplibregl-ctrl-group";
+
+
+        this.button =
+          document.createElement(
+            "button"
+          );
+
+
+        this.button.type =
+          "button";
+
+
+        this.button.title =
+          "Reset map";
+
+
+        this.button.setAttribute(
+          "aria-label",
+          "Reset map to UK view"
+        );
+
+
+        this.button.innerHTML = `
+          <svg
+            viewBox="0 0 24 24"
+            width="18"
+            height="18"
+            aria-hidden="true"
+          >
+            <path
+              d="M3 6.5L8.5 4L15.5 6.5L21 4V17.5L15.5 20L8.5 17.5L3 20V6.5Z"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linejoin="round"
+            />
+            <path
+              d="M8.5 4V17.5M15.5 6.5V20"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            />
+          </svg>
+        `;
+
+
+        this.button.addEventListener(
+          "click",
+          this.handleClick =
+            () => {
+
+              this.map.fitBounds(
+                UK_BOUNDS,
+                {
+                  padding: 30,
+                  duration: 650
+                }
+              );
+
+            }
+        );
+
+
+        this.container.appendChild(
+          this.button
+        );
+
+
+        return this.container;
+
+      }
+
+
+      onRemove() {
+
+        this.button.removeEventListener(
+          "click",
+          this.handleClick
+        );
+
+
+        this.container.remove();
+
+
+        this.map =
+          undefined;
+
+      }
+
+    }
+
+
+    map.addControl(
+      new ResetMapControl(),
+      "top-left"
+    );
+
+
+    /* ====================================================
+       LOADING UI
+    ==================================================== */
+
+    function renderLoadingSkeleton() {
+
+      const container =
+        document.getElementById(
+          "eventList"
+        );
+
+
+      container.innerHTML =
+        Array.from(
+          { length: 5 },
+          () => `
+            <div class="skeleton-card" aria-hidden="true">
+              <div class="skeleton-line short"></div>
+              <div class="skeleton-line"></div>
+              <div class="skeleton-line medium"></div>
+            </div>
+          `
+        )
+          .join("");
+
+    }
+
+
+    function setFiltersDisabled(
+      disabled
+    ) {
+
+      for (
+        const id of [
+          "search",
+          "distanceLocation",
+          "distanceRadius",
+          "applyDistance",
+          "categoryFilter",
+          "fromDate",
+          "toDate",
+          "resetFilters"
+        ]
+      ) {
+
+        document
+          .getElementById(id)
+          .disabled =
+            disabled;
+
+      }
+
+    }
+
+
+    function setStatusLoading() {
+
+      document
+        .getElementById("status")
+        .innerHTML = `
+          <span
+            class="status-spinner"
+            aria-hidden="true"
+          ></span>
+          <span>Loading events…</span>
+        `;
+
+    }
+
+
+    function setStatusLoaded() {
+
+      document
+        .getElementById("status")
+        .textContent =
+          `${allEvents.length} events loaded`;
+
+    }
+
+
+    /* ====================================================
+       LOAD EVENTS
+    ==================================================== */
+
+    async function loadEvents() {
+
+      setStatusLoading();
+
+      setFiltersDisabled(true);
+
+      renderLoadingSkeleton();
+
+
+      const response =
+        await fetch(API_URL);
+
+
+      if (!response.ok) {
+
+        throw new Error(
+          `API returned HTTP ${response.status}`
+        );
+
+      }
+
+
+      const data =
+        await response.json();
+
+
+      allEvents =
+        (data.events ?? [])
+          .map(event => {
+
+            /*
+             * Do not use Number(null) here:
+             * Number(null) is 0 and would create a false
+             * marker at 0,0 for coordinate-less events.
+             */
+            const longitude =
+              parseCoordinate(
+                event.longitude
+              );
+
+            const latitude =
+              parseCoordinate(
+                event.latitude
+              );
+
+
+            let categories =
+              event.categories ?? [];
+
+
+            if (
+              typeof categories === "string"
+            ) {
+
+              try {
+
+                categories =
+                  JSON.parse(categories);
+
+              }
+              catch {
+
+                categories = [];
+
+              }
+
+            }
+
+
+            if (
+              !Array.isArray(categories)
+            ) {
+
+              categories = [];
+
+            }
+
+
+            return {
+
+              ...event,
+
+              longitude,
+              latitude,
+              categories
+
+            };
+
+          });
+
+
+      allEvents.sort(
+        (a, b) =>
+          parseEventDate(
+            a.start_datetime
+          ) -
+          parseEventDate(
+            b.start_datetime
+          )
+      );
+
+
+      populateCategoryFilter();
+
+      setupEventSource();
+
+      applyUrlFilters();
+
+      dataLoaded =
+        true;
+
+      setFiltersDisabled(false);
+
+      updateViewModeUI();
+
+
+      const initialLocation =
+        document
+          .getElementById(
+            "distanceLocation"
+          )
+          .value
+          .trim();
+
+
+      if (
+        viewMode === "map" &&
+        initialLocation
+      ) {
+
+        await resolveDistanceLocation({
+          updateUrl:
+            false,
+
+          moveMap:
+            false
+        });
+
+      }
+      else {
+
+        applyFilters({
+          updateUrl:
+            false
+        });
+
+      }
+
+
+      setStatusLoaded();
+
+    }
+
+
+    /* ====================================================
+       CATEGORY FILTER
+    ==================================================== */
+
+    function populateCategoryFilter() {
+
+      const select =
+        document.getElementById(
+          "categoryFilter"
+        );
+
+
+      const categoryMap =
+        new Map();
+
+
+      for (const event of allEvents) {
+
+        for (
+          const category of
+          event.categories ?? []
+        ) {
+
+          if (
+            category.slug &&
+            category.name
+          ) {
+
+            categoryMap.set(
+              category.slug,
+              category.name
+            );
+
+          }
+
+        }
+
+      }
+
+
+      const categories =
+        Array.from(
+          categoryMap.entries()
+        )
+          .sort(
+            (a, b) =>
+              a[1].localeCompare(
+                b[1]
+              )
+          );
+
+
+      select.innerHTML = `
+        <option value="">
+          All event types
+        </option>
+      `;
+
+
+      for (
+        const [slug, name]
+        of categories
+      ) {
+
+        const option =
+          document.createElement(
+            "option"
+          );
+
+        option.value =
+          slug;
+
+        option.textContent =
+          name;
+
+        select.appendChild(
+          option
+        );
+
+      }
+
+    }
+
+
+    /* ====================================================
+       URL FILTER STATE
+    ==================================================== */
+
+    function applyUrlFilters() {
+
+      const params =
+        new URLSearchParams(
+          window.location.search
+        );
+
+
+      document
+        .getElementById("search")
+        .value =
+          params.get("q") ?? "";
+
+
+      const requestedCategory =
+        params.get("category") ?? "";
+
+
+      const categorySelect =
+        document.getElementById(
+          "categoryFilter"
+        );
+
+
+      const categoryExists =
+        Array.from(
+          categorySelect.options
+        )
+          .some(
+            option =>
+              option.value ===
+              requestedCategory
+          );
+
+
+      categorySelect.value =
+        categoryExists
+          ? requestedCategory
+          : "";
+
+
+      document
+        .getElementById("fromDate")
+        .value =
+          params.get("from") ?? "";
+
+
+      document
+        .getElementById("toDate")
+        .value =
+          params.get("to") ?? "";
+
+
+      document
+        .getElementById(
+          "distanceLocation"
+        )
+        .value =
+          params.get("near") ?? "";
+
+
+      const requestedRadius =
+        params.get("radius") ??
+        "25";
+
+
+      const radiusSelect =
+        document.getElementById(
+          "distanceRadius"
+        );
+
+
+      const radiusExists =
+        Array.from(
+          radiusSelect.options
+        )
+          .some(
+            option =>
+              option.value ===
+              requestedRadius
+          );
+
+
+      radiusSelect.value =
+        radiusExists
+          ? requestedRadius
+          : "25";
+
+
+      viewMode =
+        params.get("view") ===
+          "online"
+          ? "online"
+          : "map";
+
+    }
+
+
+    function updateUrlFromFilters() {
+
+      const params =
+        new URLSearchParams();
+
+
+      const search =
+        document
+          .getElementById("search")
+          .value
+          .trim();
+
+
+      const category =
+        document
+          .getElementById(
+            "categoryFilter"
+          )
+          .value;
+
+
+      const fromDate =
+        document
+          .getElementById("fromDate")
+          .value;
+
+
+      const toDate =
+        document
+          .getElementById("toDate")
+          .value;
+
+
+      const distanceLocation =
+        document
+          .getElementById(
+            "distanceLocation"
+          )
+          .value
+          .trim();
+
+
+      const distanceRadius =
+        document
+          .getElementById(
+            "distanceRadius"
+          )
+          .value;
+
+
+      if (search) {
+
+        params.set(
+          "q",
+          search
+        );
+
+      }
+
+
+      if (category) {
+
+        params.set(
+          "category",
+          category
+        );
+
+      }
+
+
+      if (fromDate) {
+
+        params.set(
+          "from",
+          fromDate
+        );
+
+      }
+
+
+      if (toDate) {
+
+        params.set(
+          "to",
+          toDate
+        );
+
+      }
+
+
+      if (
+        viewMode === "map" &&
+        distanceOrigin &&
+        distanceLocation
+      ) {
+
+        params.set(
+          "near",
+          distanceLocation
+        );
+
+        params.set(
+          "radius",
+          distanceRadius
+        );
+
+      }
+
+
+      if (
+        viewMode === "online"
+      ) {
+
+        params.set(
+          "view",
+          "online"
+        );
+
+      }
+
+
+      const query =
+        params.toString();
+
+
+      const newUrl =
+        window.location.pathname +
+        (
+          query
+            ? `?${query}`
+            : ""
+        ) +
+        window.location.hash;
+
+
+      window.history.replaceState(
+        null,
+        "",
+        newUrl
+      );
+
+    }
+
+
+    /* ====================================================
+       EVENT TYPE / COORDINATE HELPERS
+    ==================================================== */
+
+    function parseCoordinate(
+      value
+    ) {
+
+      if (
+        value === null ||
+        value === undefined ||
+        String(value).trim() === ""
+      ) {
+
+        return null;
+
+      }
+
+
+      const number =
+        Number(value);
+
+
+      return Number.isFinite(
+        number
+      )
+        ? number
+        : null;
+
+    }
+
+
+    function hasMapCoordinates(
+      event
+    ) {
+
+      return (
+        Number.isFinite(
+          event.latitude
+        ) &&
+        Number.isFinite(
+          event.longitude
+        )
+      );
+
+    }
+
+
+    function truthyFlag(
+      value
+    ) {
+
+      if (
+        value === true ||
+        value === 1
+      ) {
+
+        return true;
+
+      }
+
+
+      const text =
+        String(
+          value ?? ""
+        )
+          .trim()
+          .toLowerCase();
+
+
+      return (
+        text === "1" ||
+        text === "true" ||
+        text === "yes"
+      );
+
+    }
+
+
+    function isOnlineEvent(
+      event
+    ) {
+
+      if (
+        truthyFlag(
+          event.is_virtual
+        )
+      ) {
+
+        return true;
+
+      }
+
+
+      if (
+        String(
+          event.virtual_url ??
+          ""
+        ).trim()
+      ) {
+
+        return true;
+
+      }
+
+
+      /*
+       * BJA does not consistently mark online events as
+       * virtual, so use known online venue wording as a
+       * fallback.
+       */
+      const venueText =
+        [
+          event.venue_name,
+          event.address,
+          event.city
+        ]
+          .filter(Boolean)
+          .join(" ")
+          .toLowerCase();
+
+
+      return (
+        /\b(online|zoom|webinar|virtual|ms teams|microsoft teams)\b/
+          .test(
+            venueText
+          )
+      );
+
+    }
+
+
+    function isMapEvent(
+      event
+    ) {
+
+      return (
+        !isOnlineEvent(event) &&
+        hasMapCoordinates(event)
+      );
+
+    }
+
+
+    /* ====================================================
+       GEOJSON
+    ==================================================== */
+
+    function eventsToGeoJSON(events) {
+
+      return {
+
+        type:
+          "FeatureCollection",
+
+        features:
+          events
+            .filter(
+              isMapEvent
+            )
+            .map(event => ({
+
+            type:
+              "Feature",
+
+            geometry: {
+
+              type:
+                "Point",
+
+              coordinates: [
+                event.longitude,
+                event.latitude
+              ]
+
+            },
+
+            properties: {
+
+              id:
+                event.id,
+
+              title:
+                event.title ?? "",
+
+              venue_name:
+                event.venue_name ?? ""
+
+            }
+
+          }))
+
+      };
+
+    }
+
+
+    /* ====================================================
+       MAP SOURCE / EVENT MARKERS
+    ==================================================== */
+
+    function setupEventSource() {
+
+      map.addSource(
+        "events",
+        {
+
+          type:
+            "geojson",
+
+          data:
+            eventsToGeoJSON(
+              allEvents
+            )
+
+        }
+      );
+
+
+      /*
+       * Selection ring below the normal red marker.
+       */
+
+      map.addLayer({
+
+        id:
+          "selected-point",
+
+        type:
+          "circle",
+
+        source:
+          "events",
+
+        filter: [
+          "==",
+          ["to-string", ["get", "id"]],
+          "__none__"
+        ],
+
+        paint: {
+
+          "circle-color":
+            "rgba(0,0,0,0)",
+
+          "circle-radius":
+            14,
+
+          "circle-stroke-width":
+            4,
+
+          "circle-stroke-color":
+            "#4455d7"
+
+        }
+
+      });
+
+
+      map.addLayer({
+
+        id:
+          "unclustered-point",
+
+        type:
+          "circle",
+
+        source:
+          "events",
+
+        paint: {
+
+          "circle-color":
+            "#e53935",
+
+          "circle-radius":
+            10,
+
+          "circle-stroke-width":
+            2,
+
+          "circle-stroke-color":
+            "#ffffff"
+
+        }
+
+      });
+
+
+      map.addSource(
+        "search-location",
+        {
+          type:
+            "geojson",
+
+          data:
+            emptyPointGeoJSON()
+        }
+      );
+
+
+      map.addLayer({
+
+        id:
+          "search-location-point",
+
+        type:
+          "circle",
+
+        source:
+          "search-location",
+
+        paint: {
+
+          "circle-color":
+            "#0300bd",
+
+          "circle-radius":
+            7,
+
+          "circle-stroke-width":
+            3,
+
+          "circle-stroke-color":
+            "#ffffff"
+
+        }
+
+      });
+
+    }
+
+
+    function updateSelectedMarker() {
+
+      if (
+        !map.getLayer(
+          "selected-point"
+        )
+      ) {
+
+        return;
+
+      }
+
+
+      map.setFilter(
+        "selected-point",
+
+        [
+          "==",
+          [
+            "to-string",
+            ["get", "id"]
+          ],
+          selectedEventId === null
+            ? "__none__"
+            : String(
+                selectedEventId
+              )
+        ]
+      );
+
+    }
+
+
+    /* ====================================================
+       POSTCODE / TOWN DISTANCE SEARCH
+    ==================================================== */
+
+    function emptyPointGeoJSON() {
+
+      return {
+        type:
+          "FeatureCollection",
+
+        features:
+          []
+      };
+
+    }
+
+
+    function updateSearchLocationMarker() {
+
+      const source =
+        map.getSource(
+          "search-location"
+        );
+
+
+      if (!source) {
+
+        return;
+
+      }
+
+
+      if (!distanceOrigin) {
+
+        source.setData(
+          emptyPointGeoJSON()
+        );
+
+        return;
+
+      }
+
+
+      source.setData({
+
+        type:
+          "FeatureCollection",
+
+        features: [
+          {
+            type:
+              "Feature",
+
+            geometry: {
+              type:
+                "Point",
+
+              coordinates: [
+                distanceOrigin.longitude,
+                distanceOrigin.latitude
+              ]
+            },
+
+            properties: {}
+          }
+        ]
+
+      });
+
+    }
+
+
+    function normalizeLocationText(
+      value
+    ) {
+
+      return String(
+        value ?? ""
+      )
+        .trim()
+        .replace(
+          /\s+/g,
+          " "
+        )
+        .toLowerCase();
+
+    }
+
+
+    function clearDistanceOrigin(
+      {
+        clearInput = false,
+        clearStatus = true
+      } = {}
+    ) {
+
+      distanceOrigin =
+        null;
+
+
+      updateSearchLocationMarker();
+
+
+      if (clearInput) {
+
+        document
+          .getElementById(
+            "distanceLocation"
+          )
+          .value = "";
+
+      }
+
+
+      if (clearStatus) {
+
+        const status =
+          document.getElementById(
+            "distanceStatus"
+          );
+
+        status.textContent =
+          "";
+
+        status.classList.remove(
+          "error"
+        );
+
+      }
+
+    }
+
+
+    async function resolveDistanceLocation(
+      {
+        updateUrl = true,
+        moveMap = true
+      } = {}
+    ) {
+
+      const input =
+        document.getElementById(
+          "distanceLocation"
+        );
+
+
+      const button =
+        document.getElementById(
+          "applyDistance"
+        );
+
+
+      const status =
+        document.getElementById(
+          "distanceStatus"
+        );
+
+
+      const query =
+        input.value
+          .trim()
+          .replace(
+            /\s+/g,
+            " "
+          );
+
+
+      status.classList.remove(
+        "error"
+      );
+
+
+      if (!query) {
+
+        clearDistanceOrigin();
+
+        applyFilters({
+          updateUrl
+        });
+
+        return;
+
+      }
+
+
+      button.disabled =
+        true;
+
+      status.textContent =
+        "Finding location…";
+
+
+      try {
+
+        const url =
+          new URL(
+            GEOCODER_URL
+          );
+
+
+        url.searchParams.set(
+          "q",
+          query
+        );
+
+
+        const response =
+          await fetch(
+            url.toString()
+          );
+
+
+        if (
+          response.status === 404
+        ) {
+
+          clearDistanceOrigin({
+            clearStatus:
+              false
+          });
+
+
+          status.textContent =
+            "Location not found. Try a postcode or a more specific town name.";
+
+          status.classList.add(
+            "error"
+          );
+
+
+          applyFilters({
+            updateUrl
+          });
+
+          return;
+
+        }
+
+
+        if (!response.ok) {
+
+          throw new Error(
+            `Location lookup returned HTTP ${response.status}`
+          );
+
+        }
+
+
+        const data =
+          await response.json();
+
+
+        const latitude =
+          Number(
+            data.latitude
+          );
+
+
+        const longitude =
+          Number(
+            data.longitude
+          );
+
+
+        if (
+          !Number.isFinite(
+            latitude
+          ) ||
+
+          !Number.isFinite(
+            longitude
+          )
+        ) {
+
+          throw new Error(
+            "Location lookup returned invalid coordinates"
+          );
+
+        }
+
+
+        distanceOrigin = {
+
+          query,
+
+          latitude,
+
+          longitude,
+
+          displayName:
+            data.display_name ||
+            query
+
+        };
+
+
+        input.value =
+          query;
+
+
+        status.textContent =
+          `Using ${distanceOrigin.displayName}`;
+
+
+        updateSearchLocationMarker();
+
+
+        applyFilters({
+          updateUrl
+        });
+
+
+        if (moveMap) {
+
+          map.easeTo({
+
+            center: [
+              longitude,
+              latitude
+            ],
+
+            zoom:
+              zoomForRadius(
+                Number(
+                  document
+                    .getElementById(
+                      "distanceRadius"
+                    )
+                    .value
+                )
+              ),
+
+            duration:
+              650
+
+          });
+
+        }
+
+      }
+      catch (error) {
+
+        clearDistanceOrigin({
+          clearStatus:
+            false
+        });
+
+
+        status.textContent =
+          "Location search is currently unavailable.";
+
+        status.classList.add(
+          "error"
+        );
+
+
+        applyFilters({
+          updateUrl
+        });
+
+
+        console.error(
+          "Location lookup failed:",
+          error
+        );
+
+      }
+      finally {
+
+        if (dataLoaded) {
+
+          button.disabled =
+            false;
+
+        }
+
+      }
+
+    }
+
+
+    function zoomForRadius(
+      miles
+    ) {
+
+      if (miles <= 10) {
+
+        return 10;
+
+      }
+
+
+      if (miles <= 25) {
+
+        return 9;
+
+      }
+
+
+      if (miles <= 50) {
+
+        return 8;
+
+      }
+
+
+      return 7;
+
+    }
+
+
+    function distanceMiles(
+      latitude1,
+      longitude1,
+      latitude2,
+      longitude2
+    ) {
+
+      const earthRadiusMiles =
+        3958.7613;
+
+
+      const toRadians =
+        degrees =>
+          degrees *
+          Math.PI /
+          180;
+
+
+      const lat1 =
+        toRadians(
+          latitude1
+        );
+
+
+      const lat2 =
+        toRadians(
+          latitude2
+        );
+
+
+      const deltaLat =
+        toRadians(
+          latitude2 -
+          latitude1
+        );
+
+
+      const deltaLon =
+        toRadians(
+          longitude2 -
+          longitude1
+        );
+
+
+      const a =
+        Math.sin(
+          deltaLat / 2
+        ) ** 2 +
+
+        Math.cos(lat1) *
+        Math.cos(lat2) *
+        Math.sin(
+          deltaLon / 2
+        ) ** 2;
+
+
+      const c =
+        2 *
+        Math.atan2(
+          Math.sqrt(a),
+          Math.sqrt(1 - a)
+        );
+
+
+      return (
+        earthRadiusMiles *
+        c
+      );
+
+    }
+
+
+    function eventDistanceMiles(
+      event
+    ) {
+
+      if (!distanceOrigin) {
+
+        return null;
+
+      }
+
+
+      return distanceMiles(
+
+        distanceOrigin.latitude,
+        distanceOrigin.longitude,
+
+        event.latitude,
+        event.longitude
+
+      );
+
+    }
+
+
+    function formatDistance(
+      miles
+    ) {
+
+      if (
+        miles === null ||
+        !Number.isFinite(
+          miles
+        )
+      ) {
+
+        return "";
+
+      }
+
+
+      return (
+        `${miles.toFixed(1)} ${
+          Math.abs(
+            miles - 1
+          ) < 0.05
+            ? "mile"
+            : "miles"
+        } away`
+      );
+
+    }
+
+
+    /* ====================================================
+       MAP / ONLINE VIEW
+    ==================================================== */
+
+    function updateViewModeUI() {
+
+      const online =
+        viewMode ===
+        "online";
+
+
+      const mapButton =
+        document.getElementById(
+          "mapEventsView"
+        );
+
+
+      const onlineButton =
+        document.getElementById(
+          "onlineEventsView"
+        );
+
+
+      mapButton.classList.toggle(
+        "active",
+        !online
+      );
+
+
+      onlineButton.classList.toggle(
+        "active",
+        online
+      );
+
+
+      mapButton.setAttribute(
+        "aria-pressed",
+        String(!online)
+      );
+
+
+      onlineButton.setAttribute(
+        "aria-pressed",
+        String(online)
+      );
+
+
+      document
+        .getElementById(
+          "onlineModeNote"
+        )
+        .hidden =
+          !online;
+
+
+      document
+        .getElementById(
+          "mapModeNotice"
+        )
+        .hidden =
+          !online;
+
+
+      /*
+       * Distance controls have no meaning for online
+       * events. Leave the user's values in place so they
+       * are restored when switching back to Map events.
+       */
+      if (dataLoaded) {
+
+        document
+          .getElementById(
+            "distanceLocation"
+          )
+          .disabled =
+            online;
+
+
+        document
+          .getElementById(
+            "distanceRadius"
+          )
+          .disabled =
+            online;
+
+
+        document
+          .getElementById(
+            "applyDistance"
+          )
+          .disabled =
+            online;
+
+      }
+
+
+      if (
+        map.getLayer(
+          "search-location-point"
+        )
+      ) {
+
+        map.setLayoutProperty(
+          "search-location-point",
+          "visibility",
+          online
+            ? "none"
+            : "visible"
+        );
+
+      }
+
+    }
+
+
+    function setViewMode(
+      mode
+    ) {
+
+      const nextMode =
+        mode === "online"
+          ? "online"
+          : "map";
+
+
+      if (
+        nextMode === viewMode
+      ) {
+
+        updateViewModeUI();
+
+        return;
+
+      }
+
+
+      viewMode =
+        nextMode;
+
+
+      selectedEventId =
+        null;
+
+
+      if (activePopup) {
+
+        activePopup.remove();
+
+        activePopup =
+          null;
+
+      }
+
+
+      updateSelectedMarker();
+
+      updateViewModeUI();
+
+      applyFilters();
+
+    }
+
+
+    /* ====================================================
+       FILTERING
+    ==================================================== */
+
+    function applyFilters(
+      {
+        updateUrl = true
+      } = {}
+    ) {
+
+      if (!dataLoaded) {
+
+        return;
+
+      }
+
+
+      const search =
+        document
+          .getElementById("search")
+          .value
+          .trim()
+          .toLowerCase();
+
+
+      const category =
+        document
+          .getElementById(
+            "categoryFilter"
+          )
+          .value;
+
+
+      const fromDate =
+        document
+          .getElementById("fromDate")
+          .value;
+
+
+      const toDate =
+        document
+          .getElementById("toDate")
+          .value;
+
+
+      const distanceRadius =
+        Number(
+          document
+            .getElementById(
+              "distanceRadius"
+            )
+            .value
+        );
+
+
+      filteredEvents =
+        allEvents.filter(event => {
+
+          if (
+            viewMode === "online"
+          ) {
+
+            if (
+              !isOnlineEvent(event)
+            ) {
+
+              return false;
+
+            }
+
+          }
+          else {
+
+            if (
+              !isMapEvent(event)
+            ) {
+
+              return false;
+
+            }
+
+          }
+
+
+          const searchableText = [
+
+            event.title,
+            event.venue_name,
+            event.city,
+            event.postcode
+
+          ]
+            .filter(Boolean)
+            .join(" ")
+            .toLowerCase();
+
+
+          if (
+            search &&
+            !searchableText.includes(
+              search
+            )
+          ) {
+
+            return false;
+
+          }
+
+
+          if (category) {
+
+            const hasCategory =
+              (event.categories ?? [])
+                .some(
+                  item =>
+                    item.slug ===
+                    category
+                );
+
+
+            if (!hasCategory) {
+
+              return false;
+
+            }
+
+          }
+
+
+          const eventDate =
+            getDatePart(
+              event.start_datetime
+            );
+
+
+          if (
+            fromDate &&
+            eventDate < fromDate
+          ) {
+
+            return false;
+
+          }
+
+
+          if (
+            toDate &&
+            eventDate > toDate
+          ) {
+
+            return false;
+
+          }
+
+
+          if (
+            viewMode === "map" &&
+            distanceOrigin &&
+            Number.isFinite(
+              distanceRadius
+            )
+          ) {
+
+            const miles =
+              eventDistanceMiles(
+                event
+              );
+
+
+            if (
+              miles === null ||
+              miles >
+                distanceRadius
+            ) {
+
+              return false;
+
+            }
+
+          }
+
+
+          return true;
+
+        });
+
+
+      if (
+        selectedEventId !== null &&
+        !filteredEvents.some(
+          event =>
+            String(event.id) ===
+            String(selectedEventId)
+        )
+      ) {
+
+        selectedEventId =
+          null;
+
+        updateSelectedMarker();
+
+        if (activePopup) {
+
+          activePopup.remove();
+
+          activePopup =
+            null;
+
+        }
+
+      }
+
+
+      updateMap();
+
+      renderEventList();
+
+
+      if (updateUrl) {
+
+        updateUrlFromFilters();
+
+      }
+
+    }
+
+
+    /* ====================================================
+       UPDATE MAP
+    ==================================================== */
+
+    function updateMap() {
+
+      const source =
+        map.getSource("events");
+
+
+      if (!source) {
+
+        return;
+
+      }
+
+
+      source.setData(
+        eventsToGeoJSON(
+          viewMode === "map"
+            ? filteredEvents
+            : []
+        )
+      );
+
+
+      updateSelectedMarker();
+
+    }
+
+
+    /* ====================================================
+       EVENTS CURRENTLY INSIDE MAP VIEW
+    ==================================================== */
+
+    function getVisibleEvents() {
+
+      if (
+        viewMode === "online"
+      ) {
+
+        return filteredEvents;
+
+      }
+
+
+      if (!map.loaded()) {
+
+        return filteredEvents;
+
+      }
+
+
+      const bounds =
+        map.getBounds();
+
+
+      return filteredEvents.filter(
+        event =>
+          bounds.contains([
+            event.longitude,
+            event.latitude
+          ])
+      );
+
+    }
+
+
+    /* ====================================================
+       SIDEBAR
+    ==================================================== */
+
+    function renderEventList() {
+
+      if (!dataLoaded) {
+
+        return;
+
+      }
+
+
+      const container =
+        document.getElementById(
+          "eventList"
+        );
+
+
+      const resultCount =
+        document.getElementById(
+          "resultCount"
+        );
+
+
+      const visibleEvents =
+        getVisibleEvents();
+
+
+      if (
+        filteredEvents.length === 0
+      ) {
+
+        resultCount.textContent =
+          viewMode === "online"
+            ? "0 online events matching filters"
+            : "0 events matching filters";
+
+
+        container.innerHTML = `
+          <div class="empty-state">
+            <strong>
+              ${
+                viewMode === "online"
+                  ? "No online events match these filters."
+                  : "No events match these filters."
+              }
+            </strong>
+            <span>
+              Change the search, event type or date range,
+              or reset the filters.
+            </span>
+          </div>
+        `;
+
+        return;
+
+      }
+
+
+      if (
+        viewMode === "online"
+      ) {
+
+        resultCount.textContent =
+          `${filteredEvents.length} online ${
+            filteredEvents.length === 1
+              ? "event"
+              : "events"
+          } matching filters`;
+
+      }
+      else {
+
+        resultCount.textContent =
+          `${visibleEvents.length} ${
+            visibleEvents.length === 1
+              ? "event"
+              : "events"
+          } in this map area` +
+          (
+            visibleEvents.length !==
+            filteredEvents.length
+
+              ? ` · ${filteredEvents.length} matching filters`
+
+              : ""
+          ) +
+          (
+            distanceOrigin
+              ? ` · within ${
+                  document
+                    .getElementById(
+                      "distanceRadius"
+                    )
+                    .value
+                } miles`
+              : ""
+          );
+
+      }
+
+
+      container.innerHTML =
+        "";
+
+
+      if (
+        viewMode === "map" &&
+        visibleEvents.length === 0
+      ) {
+
+        container.innerHTML = `
+          <div class="empty-state">
+            <strong>
+              No matching events are visible here.
+            </strong>
+            <span>
+              Pan or zoom the map, or use Reset map
+              to return to the UK view.
+            </span>
+          </div>
+        `;
+
+        return;
+
+      }
+
+
+      for (
+        const event of visibleEvents
+      ) {
+
+        const item =
+          document.createElement(
+            "div"
+          );
+
+
+        item.className =
+          "event-item";
+
+        item.tabIndex =
+          0;
+
+        item.setAttribute(
+          "role",
+          "button"
+        );
+
+
+        if (
+          String(event.id) ===
+          String(selectedEventId)
+        ) {
+
+          item.classList.add(
+            "selected"
+          );
+
+          item.setAttribute(
+            "aria-current",
+            "true"
+          );
+
+        }
+
+
+        item.dataset.eventId =
+          event.id;
+
+
+        let categoriesHtml =
+          "";
+
+
+        if (
+          event.categories?.length
+        ) {
+
+          categoriesHtml = `
+
+            <div class="event-categories">
+
+              ${
+                event.categories
+                  .map(
+                    category => `
+                      <span class="event-category">
+                        ${escapeHtml(
+                          category.name
+                        )}
+                      </span>
+                    `
+                  )
+                  .join("")
+              }
+
+            </div>
+
+          `;
+
+        }
+
+
+        const locationParts =
+          [
+            event.city,
+            event.postcode
+          ]
+            .filter(Boolean)
+            .join(" ");
+
+
+        const onlineEvent =
+          isOnlineEvent(
+            event
+          );
+
+
+        const officialUrl =
+          event.bja_url ||
+          event.rest_url ||
+          "";
+
+
+        const onlineBadgeHtml =
+          onlineEvent
+            ? `
+              <div class="online-badge">
+                ONLINE
+              </div>
+            `
+            : "";
+
+
+        const officialLinkHtml =
+          onlineEvent &&
+          officialUrl
+            ? `
+              <a
+                class="event-official-link"
+                href="${escapeAttribute(
+                  officialUrl
+                )}"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                View official details
+              </a>
+            `
+            : "";
+
+
+        const distance =
+          eventDistanceMiles(
+            event
+          );
+
+
+        const distanceHtml =
+          distance === null
+            ? ""
+            : `
+              <div class="event-distance">
+                ${escapeHtml(
+                  formatDistance(
+                    distance
+                  )
+                )}
+              </div>
+            `;
+
+
+        item.innerHTML = `
+
+          ${onlineBadgeHtml}
+
+          <div class="event-date">
+            ${escapeHtml(
+              formatEventDate(
+                event.start_datetime
+              )
+            )}
+          </div>
+
+
+          <div class="event-title">
+            ${escapeHtml(
+              event.title
+            )}
+          </div>
+
+
+          <div class="event-location">
+
+            ${
+              event.venue_name
+                ? escapeHtml(
+                    event.venue_name
+                  )
+                : (
+                    onlineEvent
+                      ? "Online event"
+                      : "Venue unavailable"
+                  )
+            }
+
+            ${
+              locationParts
+                ? `<br>${escapeHtml(
+                    locationParts
+                  )}`
+                : ""
+            }
+
+          </div>
+
+
+          ${distanceHtml}
+
+
+          ${categoriesHtml}
+
+          ${officialLinkHtml}
+
+        `;
+
+
+        if (!onlineEvent) {
+
+          item.addEventListener(
+            "click",
+            () => {
+
+              selectEvent(
+                event
+              );
+
+            }
+          );
+
+
+          item.addEventListener(
+            "keydown",
+            keyboardEvent => {
+
+              if (
+                keyboardEvent.key ===
+                  "Enter" ||
+                keyboardEvent.key ===
+                  " "
+              ) {
+
+                keyboardEvent
+                  .preventDefault();
+
+                selectEvent(
+                  event
+                );
+
+              }
+
+            }
+          );
+
+        }
+        else {
+
+          item.removeAttribute(
+            "role"
+          );
+
+          item.removeAttribute(
+            "tabindex"
+          );
+
+          item.style.cursor =
+            "default";
+
+        }
+
+
+        container.appendChild(
+          item
+        );
+
+      }
+
+    }
+
+
+    /* ====================================================
+       EVENTS AT SAME LOCATION
+    ==================================================== */
+
+    function getEventsAtLocation(
+      longitude,
+      latitude
+    ) {
+
+      const tolerance =
+        0.000001;
+
+
+      return filteredEvents.filter(
+        event =>
+
+          Math.abs(
+            event.longitude -
+            longitude
+          ) < tolerance
+
+          &&
+
+          Math.abs(
+            event.latitude -
+            latitude
+          ) < tolerance
+
+      );
+
+    }
+
+
+    /* ====================================================
+       SELECTION
+    ==================================================== */
+
+    function setSelectedEvent(
+      event
+    ) {
+
+      selectedEventId =
+        event.id;
+
+      updateSelectedMarker();
+
+      renderEventList();
+
+    }
+
+
+    function selectEvent(event) {
+
+      if (
+        !isMapEvent(event)
+      ) {
+
+        return;
+
+      }
+
+
+      setSelectedEvent(
+        event
+      );
+
+
+      /*
+       * On mobile, close the result panel once a result
+       * has been selected so the map becomes visible.
+       */
+
+      if (
+        window.matchMedia(
+          "(max-width: 750px)"
+        ).matches
+      ) {
+
+        setMobilePanel(
+          null
+        );
+
+      }
+
+
+      map.easeTo({
+
+        center: [
+          event.longitude,
+          event.latitude
+        ],
+
+        zoom:
+          Math.max(
+            map.getZoom(),
+            15
+          ),
+
+        duration:
+          650
+
+      });
+
+
+      window.setTimeout(
+        () => {
+
+          const venueEvents =
+            getEventsAtLocation(
+              event.longitude,
+              event.latitude
+            );
+
+
+          showLocationPopup(
+            venueEvents.length
+              ? venueEvents
+              : [event],
+            [
+              event.longitude,
+              event.latitude
+            ]
+          );
+
+        },
+        700
+      );
+
+    }
+
+
+    /* ====================================================
+       RED MARKER CLICK
+    ==================================================== */
+
+    map.on(
+      "click",
+      "unclustered-point",
+      event => {
+
+        const feature =
+          event.features?.[0];
+
+
+        if (!feature) {
+
+          return;
+
+        }
+
+
+        const eventId =
+          feature.properties.id;
+
+
+        const clickedEvent =
+          filteredEvents.find(
+            item =>
+              String(item.id) ===
+              String(eventId)
+          );
+
+
+        if (!clickedEvent) {
+
+          return;
+
+        }
+
+
+        const venueEvents =
+          getEventsAtLocation(
+            clickedEvent.longitude,
+            clickedEvent.latitude
+          );
+
+
+        setSelectedEvent(
+          clickedEvent
+        );
+
+
+        showLocationPopup(
+          venueEvents.length
+            ? venueEvents
+            : [clickedEvent],
+          [
+            clickedEvent.longitude,
+            clickedEvent.latitude
+          ]
+        );
+
+
+        scrollEventIntoView(
+          clickedEvent.id
+        );
+
+      }
+    );
+
+
+    /* ====================================================
+       MULTI-EVENT LOCATION POPUP
+    ==================================================== */
+
+    function showLocationPopup(
+      events,
+      coordinates
+    ) {
+
+      if (
+        !events ||
+        events.length === 0
+      ) {
+
+        return;
+
+      }
+
+
+      if (activePopup) {
+
+        activePopup.remove();
+
+      }
+
+
+      const sortedEvents =
+        [...events]
+          .sort(
+            (a, b) =>
+              parseEventDate(
+                a.start_datetime
+              ) -
+              parseEventDate(
+                b.start_datetime
+              )
+          );
+
+
+      const firstEvent =
+        sortedEvents[0];
+
+
+      const venueName =
+        firstEvent.venue_name ||
+        "Event location";
+
+
+      const locationText =
+        [
+          firstEvent.city,
+          firstEvent.postcode
+        ]
+          .filter(Boolean)
+          .join(" ");
+
+
+      const eventItemsHtml =
+        sortedEvents
+          .map(event => {
+
+            let categoriesHtml =
+              "";
+
+
+            if (
+              event.categories?.length
+            ) {
+
+              categoriesHtml = `
+
+                <div class="popup-categories">
+
+                  ${
+                    event.categories
+                      .map(
+                        category => `
+                          <span class="popup-category">
+                            ${escapeHtml(
+                              category.name
+                            )}
+                          </span>
+                        `
+                      )
+                      .join("")
+                  }
+
+                </div>
+
+              `;
+
+            }
+
+
+            const distance =
+              eventDistanceMiles(
+                event
+              );
+
+
+            const distanceHtml =
+              distance === null
+                ? ""
+                : `
+                  <div class="popup-event-distance">
+                    ${escapeHtml(
+                      formatDistance(
+                        distance
+                      )
+                    )}
+                  </div>
+                `;
+
+
+            let costHtml =
+              "";
+
+
+            if (event.cost_text) {
+
+              costHtml = `
+
+                <div class="popup-event-cost">
+                  Cost:
+                  ${escapeHtml(
+                    event.cost_text
+                  )}
+                </div>
+
+              `;
+
+            }
+
+
+            let linkHtml =
+              "";
+
+
+            if (event.bja_url) {
+
+              linkHtml = `
+
+                <a
+                  href="${escapeAttribute(
+                    event.bja_url
+                  )}"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  View event
+                </a>
+
+              `;
+
+            }
+
+
+            return `
+
+              <div class="popup-event">
+
+                <div class="popup-event-date">
+                  ${escapeHtml(
+                    formatEventDate(
+                      event.start_datetime
+                    )
+                  )}
+                </div>
+
+
+                <div class="popup-event-title">
+                  ${escapeHtml(
+                    event.title
+                  )}
+                </div>
+
+
+                ${distanceHtml}
+
+                ${costHtml}
+
+                ${categoriesHtml}
+
+                ${linkHtml}
+
+              </div>
+
+            `;
+
+          })
+          .join("");
+
+
+      const html = `
+
+        <div class="venue-popup">
+
+          <h3 class="venue-popup-title">
+            ${escapeHtml(
+              venueName
+            )}
+          </h3>
+
+
+          ${
+            locationText
+              ? `
+                <div class="venue-popup-location">
+                  ${escapeHtml(
+                    locationText
+                  )}
+                </div>
+              `
+              : ""
+          }
+
+
+          <div class="venue-popup-count">
+
+            ${sortedEvents.length}
+            ${
+              sortedEvents.length === 1
+                ? "event"
+                : "events"
+            }
+            at this location
+
+          </div>
+
+
+          ${eventItemsHtml}
+
+        </div>
+
+      `;
+
+
+      activePopup =
+        new maplibregl.Popup({
+          offset: 12
+        })
+          .setLngLat(
+            coordinates
+          )
+          .setHTML(
+            html
+          )
+          .addTo(
+            map
+          );
+
+    }
+
+
+    /* ====================================================
+       SIDEBAR SCROLL
+    ==================================================== */
+
+    function scrollEventIntoView(
+      eventId
+    ) {
+
+      const item =
+        document.querySelector(
+          `.event-item[data-event-id="${eventId}"]`
+        );
+
+
+      if (item) {
+
+        item.scrollIntoView({
+
+          behavior:
+            "smooth",
+
+          block:
+            "nearest"
+
+        });
+
+      }
+
+    }
+
+
+    /* ====================================================
+       MOBILE PANELS
+    ==================================================== */
+
+    function setMobilePanel(
+      panel
+    ) {
+
+      const sidebar =
+        document.getElementById(
+          "sidebar"
+        );
+
+
+      const filtersButton =
+        document.getElementById(
+          "mobileFiltersButton"
+        );
+
+
+      const eventsButton =
+        document.getElementById(
+          "mobileEventsButton"
+        );
+
+
+      const filtersOpen =
+        panel ===
+        "filters";
+
+
+      const eventsOpen =
+        panel ===
+        "events";
+
+
+      sidebar.classList.toggle(
+        "mobile-filters-open",
+        filtersOpen
+      );
+
+
+      sidebar.classList.toggle(
+        "mobile-results-open",
+        eventsOpen
+      );
+
+
+      filtersButton.classList.toggle(
+        "active",
+        filtersOpen
+      );
+
+
+      eventsButton.classList.toggle(
+        "active",
+        eventsOpen
+      );
+
+
+      filtersButton.setAttribute(
+        "aria-expanded",
+        String(
+          filtersOpen
+        )
+      );
+
+
+      eventsButton.setAttribute(
+        "aria-expanded",
+        String(
+          eventsOpen
+        )
+      );
+
+
+      window.setTimeout(
+        () => {
+          map.resize();
+        },
+        50
+      );
+
+    }
+
+
+    document
+      .getElementById(
+        "mobileFiltersButton"
+      )
+      .addEventListener(
+        "click",
+        () => {
+
+          const sidebar =
+            document.getElementById(
+              "sidebar"
+            );
+
+
+          setMobilePanel(
+            sidebar.classList.contains(
+              "mobile-filters-open"
+            )
+              ? null
+              : "filters"
+          );
+
+        }
+      );
+
+
+    document
+      .getElementById(
+        "mobileEventsButton"
+      )
+      .addEventListener(
+        "click",
+        () => {
+
+          const sidebar =
+            document.getElementById(
+              "sidebar"
+            );
+
+
+          setMobilePanel(
+            sidebar.classList.contains(
+              "mobile-results-open"
+            )
+              ? null
+              : "events"
+          );
+
+        }
+      );
+
+
+    /* ====================================================
+       ABOUT PANEL
+    ==================================================== */
+
+    const aboutButton =
+      document.getElementById(
+        "aboutButton"
+      );
+
+
+    const aboutPanel =
+      document.getElementById(
+        "aboutPanel"
+      );
+
+
+    function setAboutOpen(
+      open
+    ) {
+
+      aboutPanel.hidden =
+        !open;
+
+
+      aboutButton.setAttribute(
+        "aria-expanded",
+        String(open)
+      );
+
+    }
+
+
+    aboutButton.addEventListener(
+      "click",
+      event => {
+
+        event.stopPropagation();
+
+
+        setAboutOpen(
+          aboutPanel.hidden
+        );
+
+      }
+    );
+
+
+    aboutPanel.addEventListener(
+      "click",
+      event => {
+
+        event.stopPropagation();
+
+      }
+    );
+
+
+    document.addEventListener(
+      "click",
+      () => {
+
+        setAboutOpen(
+          false
+        );
+
+      }
+    );
+
+
+    document.addEventListener(
+      "keydown",
+      event => {
+
+        if (
+          event.key ===
+          "Escape"
+        ) {
+
+          setAboutOpen(
+            false
+          );
+
+
+          aboutButton.focus();
+
+        }
+
+      }
+    );
+
+
+    /* ====================================================
+       MAP / ONLINE VIEW BUTTONS
+    ==================================================== */
+
+    document
+      .getElementById(
+        "mapEventsView"
+      )
+      .addEventListener(
+        "click",
+        () => {
+
+          setViewMode(
+            "map"
+          );
+
+        }
+      );
+
+
+    document
+      .getElementById(
+        "onlineEventsView"
+      )
+      .addEventListener(
+        "click",
+        () => {
+
+          setViewMode(
+            "online"
+          );
+
+        }
+      );
+
+
+    /* ====================================================
+       MAP MOVEMENT
+    ==================================================== */
+
+    map.on(
+      "moveend",
+      () => {
+
+        renderEventList();
+
+      }
+    );
+
+
+    /* ====================================================
+       FILTER EVENTS
+    ==================================================== */
+
+    document
+      .getElementById("search")
+      .addEventListener(
+        "input",
+        () => {
+
+          applyFilters();
+
+        }
+      );
+
+
+    document
+      .getElementById(
+        "applyDistance"
+      )
+      .addEventListener(
+        "click",
+        () => {
+
+          resolveDistanceLocation();
+
+        }
+      );
+
+
+    document
+      .getElementById(
+        "distanceLocation"
+      )
+      .addEventListener(
+        "keydown",
+        event => {
+
+          if (
+            event.key ===
+            "Enter"
+          ) {
+
+            event.preventDefault();
+
+            resolveDistanceLocation();
+
+          }
+
+        }
+      );
+
+
+    document
+      .getElementById(
+        "distanceLocation"
+      )
+      .addEventListener(
+        "input",
+        () => {
+
+          if (!distanceOrigin) {
+
+            return;
+
+          }
+
+
+          const current =
+            normalizeLocationText(
+              document
+                .getElementById(
+                  "distanceLocation"
+                )
+                .value
+            );
+
+
+          const active =
+            normalizeLocationText(
+              distanceOrigin.query
+            );
+
+
+          if (
+            current !== active
+          ) {
+
+            clearDistanceOrigin({
+              clearStatus:
+                false
+            });
+
+
+            document
+              .getElementById(
+                "distanceStatus"
+              )
+              .textContent =
+                current
+                  ? "Press Find to apply this location."
+                  : "";
+
+
+            applyFilters();
+
+          }
+
+        }
+      );
+
+
+    document
+      .getElementById(
+        "distanceRadius"
+      )
+      .addEventListener(
+        "change",
+        () => {
+
+          if (
+            distanceOrigin
+          ) {
+
+            applyFilters();
+
+          }
+
+        }
+      );
+
+
+    document
+      .getElementById(
+        "categoryFilter"
+      )
+      .addEventListener(
+        "change",
+        () => {
+
+          applyFilters();
+
+        }
+      );
+
+
+    document
+      .getElementById("fromDate")
+      .addEventListener(
+        "change",
+        () => {
+
+          applyFilters();
+
+        }
+      );
+
+
+    document
+      .getElementById("toDate")
+      .addEventListener(
+        "change",
+        () => {
+
+          applyFilters();
+
+        }
+      );
+
+
+    /* ====================================================
+       RESET FILTERS
+    ==================================================== */
+
+    document
+      .getElementById(
+        "resetFilters"
+      )
+      .addEventListener(
+        "click",
+        () => {
+
+          document
+            .getElementById(
+              "search"
+            )
+            .value = "";
+
+
+          document
+            .getElementById(
+              "distanceLocation"
+            )
+            .value = "";
+
+
+          document
+            .getElementById(
+              "distanceRadius"
+            )
+            .value = "25";
+
+
+          clearDistanceOrigin();
+
+
+          document
+            .getElementById(
+              "categoryFilter"
+            )
+            .value = "";
+
+
+          document
+            .getElementById(
+              "fromDate"
+            )
+            .value = "";
+
+
+          document
+            .getElementById(
+              "toDate"
+            )
+            .value = "";
+
+
+          selectedEventId =
+            null;
+
+          updateSelectedMarker();
+
+
+          if (activePopup) {
+
+            activePopup.remove();
+
+            activePopup =
+              null;
+
+          }
+
+
+          updateViewModeUI();
+
+          applyFilters();
+
+        }
+      );
+
+
+    /* ====================================================
+       POINTER CURSORS
+    ==================================================== */
+
+    map.on(
+      "mouseenter",
+      "unclustered-point",
+      () => {
+
+        map.getCanvas()
+          .style.cursor =
+            "pointer";
+
+      }
+    );
+
+
+    map.on(
+      "mouseleave",
+      "unclustered-point",
+      () => {
+
+        map.getCanvas()
+          .style.cursor =
+            "";
+
+      }
+    );
+
+
+    /* ====================================================
+       DATE HELPERS
+    ==================================================== */
+
+    function parseEventDate(value) {
+
+      if (!value) {
+
+        return 0;
+
+      }
+
+
+      const date =
+        new Date(
+          value.replace(
+            " ",
+            "T"
+          )
+        );
+
+
+      return Number.isNaN(
+        date.getTime()
+      )
+        ? 0
+        : date.getTime();
+
+    }
+
+
+    function getDatePart(value) {
+
+      if (!value) {
+
+        return "";
+
+      }
+
+
+      return value.substring(
+        0,
+        10
+      );
+
+    }
+
+
+    function formatEventDate(value) {
+
+      if (!value) {
+
+        return "Date unavailable";
+
+      }
+
+
+      const date =
+        new Date(
+          value.replace(
+            " ",
+            "T"
+          )
+        );
+
+
+      if (
+        Number.isNaN(
+          date.getTime()
+        )
+      ) {
+
+        return value;
+
+      }
+
+
+      return date
+        .toLocaleDateString(
+          "en-GB",
+          {
+
+            weekday:
+              "short",
+
+            day:
+              "numeric",
+
+            month:
+              "short",
+
+            year:
+              "numeric"
+
+          }
+        );
+
+    }
+
+
+    /* ====================================================
+       HTML ESCAPING
+    ==================================================== */
+
+    function escapeHtml(value) {
+
+      return String(
+        value ?? ""
+      )
+        .replaceAll(
+          "&",
+          "&amp;"
+        )
+        .replaceAll(
+          "<",
+          "&lt;"
+        )
+        .replaceAll(
+          ">",
+          "&gt;"
+        )
+        .replaceAll(
+          '"',
+          "&quot;"
+        )
+        .replaceAll(
+          "'",
+          "&#039;"
+        );
+
+    }
+
+
+    function escapeAttribute(
+      value
+    ) {
+
+      return escapeHtml(
+        value
+      );
+
+    }
+
+
+    /* ====================================================
+       START
+    ==================================================== */
+
+    map.on(
+      "load",
+      async () => {
+
+        try {
+
+          await loadEvents();
+
+        }
+        catch (error) {
+
+          console.error(
+            "Could not load events:",
+            error
+          );
+
+
+          dataLoaded =
+            false;
+
+          setFiltersDisabled(true);
+
+          document
+            .getElementById(
+              "mapEventsView"
+            )
+            .disabled =
+              true;
+
+          document
+            .getElementById(
+              "onlineEventsView"
+            )
+            .disabled =
+              true;
+
+
+          document
+            .getElementById(
+              "status"
+            )
+            .textContent =
+              "Could not load events";
+
+
+          document
+            .getElementById(
+              "resultCount"
+            )
+            .textContent =
+              "Unable to load events";
+
+
+          document
+            .getElementById(
+              "eventList"
+            )
+            .innerHTML = `
+              <div class="empty-state">
+                <strong>
+                  Event data could not be loaded.
+                </strong>
+                <span>
+                  Reload the page to try again.
+                </span>
+              </div>
+            `;
+
+        }
+
+      }
+    );
+
+  </script>
+
+</body>
+</html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  />
+
+  <title>UK Judo Events Map</title>
+
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/maplibre-gl@6.6.0/dist/maplibre-gl.css"
+  />
+
+  <style>
+    :root {
+      --brand: #0300bd;
+      --brand-dark: #02008d;
+      --brand-soft: #eef2ff;
+      --text: #202124;
+      --muted: #667085;
+      --border: #e1e5ea;
+      --surface: #ffffff;
+      --surface-soft: #f7f8fa;
+      --marker: #e53935;
+      --radius: 8px;
+      --shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      width: 100%;
+      height: 100%;
       font-family: Arial, Helvetica, sans-serif;
       color: var(--text);
       background: var(--surface);
