@@ -8,7 +8,7 @@
     content="width=device-width, initial-scale=1.0"
   />
 
-  <title>UK Judo Events Map</title>
+  <title>British Judo Events Map v1.6</title>
 
   <link
     rel="stylesheet"
@@ -200,6 +200,53 @@
       gap: 7px;
     }
 
+
+    .location-search-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 6px;
+    }
+
+    #applyDistance {
+      min-width: 62px;
+      height: 36px;
+      padding: 7px 10px;
+      border: 1px solid var(--brand);
+      border-radius: 6px;
+      background: var(--brand);
+      color: #fff;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    #applyDistance:hover:not(:disabled) {
+      background: var(--brand-dark);
+    }
+
+    #distanceStatus {
+      min-height: 16px;
+      margin-top: 4px;
+      color: var(--muted);
+      font-size: 10px;
+      line-height: 1.35;
+    }
+
+    #distanceStatus.error {
+      color: #b42318;
+    }
+
+    .geocoder-attribution {
+      margin-top: 3px;
+      color: #7a8491;
+      font-size: 9px;
+      line-height: 1.3;
+    }
+
+    .geocoder-attribution a {
+      color: inherit;
+    }
+
     .filter-actions {
       display: flex;
       justify-content: flex-end;
@@ -298,6 +345,14 @@
       color: var(--muted);
       font-size: 12px;
       line-height: 1.4;
+    }
+
+
+    .event-distance {
+      margin-top: 5px;
+      color: #3349a6;
+      font-size: 11px;
+      font-weight: 800;
     }
 
     .event-categories {
@@ -489,6 +544,14 @@
       font-size: 11px;
     }
 
+
+    .popup-event-distance {
+      margin-top: 4px;
+      color: #3349a6;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
     .popup-categories {
       margin-top: 5px;
     }
@@ -631,8 +694,8 @@
 
   <header>
     <div class="header-title">
-      <h1>UK Judo Events Map</h1>
-      <span class="version">v1.5</span>
+      <h1>British Judo Events Map</h1>
+      <span class="version">v1.6</span>
     </div>
 
     <div
@@ -676,15 +739,73 @@
 
         <div class="filter-group">
           <label for="search">
-            Search events or locations
+            Search event names or venues
           </label>
 
           <input
             id="search"
             type="search"
-            placeholder="e.g. Cardiff, grading, coaching..."
+            placeholder="e.g. grading, coaching, judo club..."
             disabled
           />
+        </div>
+
+
+        <div class="filter-group">
+          <label for="distanceLocation">
+            Near postcode or town
+          </label>
+
+          <div class="location-search-row">
+
+            <input
+              id="distanceLocation"
+              type="search"
+              placeholder="e.g. AL3 5XA or Cardiff"
+              autocomplete="postal-code"
+              disabled
+            />
+
+            <button
+              id="applyDistance"
+              type="button"
+              disabled
+            >
+              Find
+            </button>
+
+          </div>
+
+          <div
+            id="distanceStatus"
+            aria-live="polite"
+          ></div>
+
+          <div class="geocoder-attribution">
+            Location search data ©
+            <a
+              href="https://www.openstreetmap.org/copyright"
+              target="_blank"
+              rel="noopener noreferrer"
+            >OpenStreetMap contributors</a>
+          </div>
+        </div>
+
+
+        <div class="filter-group">
+          <label for="distanceRadius">
+            Within
+          </label>
+
+          <select
+            id="distanceRadius"
+            disabled
+          >
+            <option value="10">10 miles</option>
+            <option value="25" selected>25 miles</option>
+            <option value="50">50 miles</option>
+            <option value="100">100 miles</option>
+          </select>
         </div>
 
 
@@ -791,6 +912,10 @@
       "https://judo-events-api.judoevents.workers.dev/api/events";
 
 
+    const GEOCODER_URL =
+      "https://judo-events-geocoder.judoevents.workers.dev/search-location";
+
+
     const UK_BOUNDS = [
       [-8.8, 49.8],
       [2.2, 60.9]
@@ -810,6 +935,19 @@
     let activePopup = null;
 
     let dataLoaded = false;
+
+
+    /*
+     * Active postcode/town search origin.
+     *
+     * {
+     *   query,
+     *   latitude,
+     *   longitude,
+     *   displayName
+     * }
+     */
+    let distanceOrigin = null;
 
 
     /* ====================================================
@@ -881,6 +1019,9 @@
       for (
         const id of [
           "search",
+          "distanceLocation",
+          "distanceRadius",
+          "applyDistance",
           "categoryFilter",
           "fromDate",
           "toDate",
@@ -1060,10 +1201,36 @@
 
       setFiltersDisabled(false);
 
-      applyFilters({
-        updateUrl:
-          false
-      });
+
+      const initialLocation =
+        document
+          .getElementById(
+            "distanceLocation"
+          )
+          .value
+          .trim();
+
+
+      if (initialLocation) {
+
+        await resolveDistanceLocation({
+          updateUrl:
+            false,
+
+          moveMap:
+            false
+        });
+
+      }
+      else {
+
+        applyFilters({
+          updateUrl:
+            false
+        });
+
+      }
+
 
       setStatusLoaded();
 
@@ -1210,6 +1377,42 @@
         .value =
           params.get("to") ?? "";
 
+
+      document
+        .getElementById(
+          "distanceLocation"
+        )
+        .value =
+          params.get("near") ?? "";
+
+
+      const requestedRadius =
+        params.get("radius") ??
+        "25";
+
+
+      const radiusSelect =
+        document.getElementById(
+          "distanceRadius"
+        );
+
+
+      const radiusExists =
+        Array.from(
+          radiusSelect.options
+        )
+          .some(
+            option =>
+              option.value ===
+              requestedRadius
+          );
+
+
+      radiusSelect.value =
+        radiusExists
+          ? requestedRadius
+          : "25";
+
     }
 
 
@@ -1243,6 +1446,23 @@
       const toDate =
         document
           .getElementById("toDate")
+          .value;
+
+
+      const distanceLocation =
+        document
+          .getElementById(
+            "distanceLocation"
+          )
+          .value
+          .trim();
+
+
+      const distanceRadius =
+        document
+          .getElementById(
+            "distanceRadius"
+          )
           .value;
 
 
@@ -1281,6 +1501,24 @@
         params.set(
           "to",
           toDate
+        );
+
+      }
+
+
+      if (
+        distanceOrigin &&
+        distanceLocation
+      ) {
+
+        params.set(
+          "near",
+          distanceLocation
+        );
+
+        params.set(
+          "radius",
+          distanceRadius
         );
 
       }
@@ -1449,6 +1687,48 @@
 
       });
 
+
+      map.addSource(
+        "search-location",
+        {
+          type:
+            "geojson",
+
+          data:
+            emptyPointGeoJSON()
+        }
+      );
+
+
+      map.addLayer({
+
+        id:
+          "search-location-point",
+
+        type:
+          "circle",
+
+        source:
+          "search-location",
+
+        paint: {
+
+          "circle-color":
+            "#0300bd",
+
+          "circle-radius":
+            7,
+
+          "circle-stroke-width":
+            3,
+
+          "circle-stroke-color":
+            "#ffffff"
+
+        }
+
+      });
+
     }
 
 
@@ -1480,6 +1760,542 @@
                 selectedEventId
               )
         ]
+      );
+
+    }
+
+
+    /* ====================================================
+       POSTCODE / TOWN DISTANCE SEARCH
+    ==================================================== */
+
+    function emptyPointGeoJSON() {
+
+      return {
+        type:
+          "FeatureCollection",
+
+        features:
+          []
+      };
+
+    }
+
+
+    function updateSearchLocationMarker() {
+
+      const source =
+        map.getSource(
+          "search-location"
+        );
+
+
+      if (!source) {
+
+        return;
+
+      }
+
+
+      if (!distanceOrigin) {
+
+        source.setData(
+          emptyPointGeoJSON()
+        );
+
+        return;
+
+      }
+
+
+      source.setData({
+
+        type:
+          "FeatureCollection",
+
+        features: [
+          {
+            type:
+              "Feature",
+
+            geometry: {
+              type:
+                "Point",
+
+              coordinates: [
+                distanceOrigin.longitude,
+                distanceOrigin.latitude
+              ]
+            },
+
+            properties: {}
+          }
+        ]
+
+      });
+
+    }
+
+
+    function normalizeLocationText(
+      value
+    ) {
+
+      return String(
+        value ?? ""
+      )
+        .trim()
+        .replace(
+          /\s+/g,
+          " "
+        )
+        .toLowerCase();
+
+    }
+
+
+    function clearDistanceOrigin(
+      {
+        clearInput = false,
+        clearStatus = true
+      } = {}
+    ) {
+
+      distanceOrigin =
+        null;
+
+
+      updateSearchLocationMarker();
+
+
+      if (clearInput) {
+
+        document
+          .getElementById(
+            "distanceLocation"
+          )
+          .value = "";
+
+      }
+
+
+      if (clearStatus) {
+
+        const status =
+          document.getElementById(
+            "distanceStatus"
+          );
+
+        status.textContent =
+          "";
+
+        status.classList.remove(
+          "error"
+        );
+
+      }
+
+    }
+
+
+    async function resolveDistanceLocation(
+      {
+        updateUrl = true,
+        moveMap = true
+      } = {}
+    ) {
+
+      const input =
+        document.getElementById(
+          "distanceLocation"
+        );
+
+
+      const button =
+        document.getElementById(
+          "applyDistance"
+        );
+
+
+      const status =
+        document.getElementById(
+          "distanceStatus"
+        );
+
+
+      const query =
+        input.value
+          .trim()
+          .replace(
+            /\s+/g,
+            " "
+          );
+
+
+      status.classList.remove(
+        "error"
+      );
+
+
+      if (!query) {
+
+        clearDistanceOrigin();
+
+        applyFilters({
+          updateUrl
+        });
+
+        return;
+
+      }
+
+
+      button.disabled =
+        true;
+
+      status.textContent =
+        "Finding location…";
+
+
+      try {
+
+        const url =
+          new URL(
+            GEOCODER_URL
+          );
+
+
+        url.searchParams.set(
+          "q",
+          query
+        );
+
+
+        const response =
+          await fetch(
+            url.toString()
+          );
+
+
+        if (
+          response.status === 404
+        ) {
+
+          clearDistanceOrigin({
+            clearStatus:
+              false
+          });
+
+
+          status.textContent =
+            "Location not found. Try a postcode or a more specific town name.";
+
+          status.classList.add(
+            "error"
+          );
+
+
+          applyFilters({
+            updateUrl
+          });
+
+          return;
+
+        }
+
+
+        if (!response.ok) {
+
+          throw new Error(
+            `Location lookup returned HTTP ${response.status}`
+          );
+
+        }
+
+
+        const data =
+          await response.json();
+
+
+        const latitude =
+          Number(
+            data.latitude
+          );
+
+
+        const longitude =
+          Number(
+            data.longitude
+          );
+
+
+        if (
+          !Number.isFinite(
+            latitude
+          ) ||
+
+          !Number.isFinite(
+            longitude
+          )
+        ) {
+
+          throw new Error(
+            "Location lookup returned invalid coordinates"
+          );
+
+        }
+
+
+        distanceOrigin = {
+
+          query,
+
+          latitude,
+
+          longitude,
+
+          displayName:
+            data.display_name ||
+            query
+
+        };
+
+
+        input.value =
+          query;
+
+
+        status.textContent =
+          `Using ${distanceOrigin.displayName}`;
+
+
+        updateSearchLocationMarker();
+
+
+        applyFilters({
+          updateUrl
+        });
+
+
+        if (moveMap) {
+
+          map.easeTo({
+
+            center: [
+              longitude,
+              latitude
+            ],
+
+            zoom:
+              zoomForRadius(
+                Number(
+                  document
+                    .getElementById(
+                      "distanceRadius"
+                    )
+                    .value
+                )
+              ),
+
+            duration:
+              650
+
+          });
+
+        }
+
+      }
+      catch (error) {
+
+        clearDistanceOrigin({
+          clearStatus:
+            false
+        });
+
+
+        status.textContent =
+          "Location search is currently unavailable.";
+
+        status.classList.add(
+          "error"
+        );
+
+
+        applyFilters({
+          updateUrl
+        });
+
+
+        console.error(
+          "Location lookup failed:",
+          error
+        );
+
+      }
+      finally {
+
+        if (dataLoaded) {
+
+          button.disabled =
+            false;
+
+        }
+
+      }
+
+    }
+
+
+    function zoomForRadius(
+      miles
+    ) {
+
+      if (miles <= 10) {
+
+        return 10;
+
+      }
+
+
+      if (miles <= 25) {
+
+        return 9;
+
+      }
+
+
+      if (miles <= 50) {
+
+        return 8;
+
+      }
+
+
+      return 7;
+
+    }
+
+
+    function distanceMiles(
+      latitude1,
+      longitude1,
+      latitude2,
+      longitude2
+    ) {
+
+      const earthRadiusMiles =
+        3958.7613;
+
+
+      const toRadians =
+        degrees =>
+          degrees *
+          Math.PI /
+          180;
+
+
+      const lat1 =
+        toRadians(
+          latitude1
+        );
+
+
+      const lat2 =
+        toRadians(
+          latitude2
+        );
+
+
+      const deltaLat =
+        toRadians(
+          latitude2 -
+          latitude1
+        );
+
+
+      const deltaLon =
+        toRadians(
+          longitude2 -
+          longitude1
+        );
+
+
+      const a =
+        Math.sin(
+          deltaLat / 2
+        ) ** 2 +
+
+        Math.cos(lat1) *
+        Math.cos(lat2) *
+        Math.sin(
+          deltaLon / 2
+        ) ** 2;
+
+
+      const c =
+        2 *
+        Math.atan2(
+          Math.sqrt(a),
+          Math.sqrt(1 - a)
+        );
+
+
+      return (
+        earthRadiusMiles *
+        c
+      );
+
+    }
+
+
+    function eventDistanceMiles(
+      event
+    ) {
+
+      if (!distanceOrigin) {
+
+        return null;
+
+      }
+
+
+      return distanceMiles(
+
+        distanceOrigin.latitude,
+        distanceOrigin.longitude,
+
+        event.latitude,
+        event.longitude
+
+      );
+
+    }
+
+
+    function formatDistance(
+      miles
+    ) {
+
+      if (
+        miles === null ||
+        !Number.isFinite(
+          miles
+        )
+      ) {
+
+        return "";
+
+      }
+
+
+      return (
+        `${miles.toFixed(1)} ${
+          Math.abs(
+            miles - 1
+          ) < 0.05
+            ? "mile"
+            : "miles"
+        } away`
       );
 
     }
@@ -1528,6 +2344,16 @@
         document
           .getElementById("toDate")
           .value;
+
+
+      const distanceRadius =
+        Number(
+          document
+            .getElementById(
+              "distanceRadius"
+            )
+            .value
+        );
 
 
       filteredEvents =
@@ -1600,6 +2426,32 @@
           ) {
 
             return false;
+
+          }
+
+
+          if (
+            distanceOrigin &&
+            Number.isFinite(
+              distanceRadius
+            )
+          ) {
+
+            const miles =
+              eventDistanceMiles(
+                event
+              );
+
+
+            if (
+              miles === null ||
+              miles >
+                distanceRadius
+            ) {
+
+              return false;
+
+            }
 
           }
 
@@ -1771,6 +2623,17 @@
             ? ` · ${filteredEvents.length} matching filters`
 
             : ""
+        ) +
+        (
+          distanceOrigin
+            ? ` · within ${
+                document
+                  .getElementById(
+                    "distanceRadius"
+                  )
+                  .value
+              } miles`
+            : ""
         );
 
 
@@ -1884,6 +2747,26 @@
             .join(" ");
 
 
+        const distance =
+          eventDistanceMiles(
+            event
+          );
+
+
+        const distanceHtml =
+          distance === null
+            ? ""
+            : `
+              <div class="event-distance">
+                ${escapeHtml(
+                  formatDistance(
+                    distance
+                  )
+                )}
+              </div>
+            `;
+
+
         item.innerHTML = `
 
           <div class="event-date">
@@ -1921,6 +2804,9 @@
             }
 
           </div>
+
+
+          ${distanceHtml}
 
 
           ${categoriesHtml}
@@ -2259,6 +3145,26 @@
             }
 
 
+            const distance =
+              eventDistanceMiles(
+                event
+              );
+
+
+            const distanceHtml =
+              distance === null
+                ? ""
+                : `
+                  <div class="popup-event-distance">
+                    ${escapeHtml(
+                      formatDistance(
+                        distance
+                      )
+                    )}
+                  </div>
+                `;
+
+
             let costHtml =
               "";
 
@@ -2321,6 +3227,8 @@
                   )}
                 </div>
 
+
+                ${distanceHtml}
 
                 ${costHtml}
 
@@ -2598,6 +3506,122 @@
 
     document
       .getElementById(
+        "applyDistance"
+      )
+      .addEventListener(
+        "click",
+        () => {
+
+          resolveDistanceLocation();
+
+        }
+      );
+
+
+    document
+      .getElementById(
+        "distanceLocation"
+      )
+      .addEventListener(
+        "keydown",
+        event => {
+
+          if (
+            event.key ===
+            "Enter"
+          ) {
+
+            event.preventDefault();
+
+            resolveDistanceLocation();
+
+          }
+
+        }
+      );
+
+
+    document
+      .getElementById(
+        "distanceLocation"
+      )
+      .addEventListener(
+        "input",
+        () => {
+
+          if (!distanceOrigin) {
+
+            return;
+
+          }
+
+
+          const current =
+            normalizeLocationText(
+              document
+                .getElementById(
+                  "distanceLocation"
+                )
+                .value
+            );
+
+
+          const active =
+            normalizeLocationText(
+              distanceOrigin.query
+            );
+
+
+          if (
+            current !== active
+          ) {
+
+            clearDistanceOrigin({
+              clearStatus:
+                false
+            });
+
+
+            document
+              .getElementById(
+                "distanceStatus"
+              )
+              .textContent =
+                current
+                  ? "Press Find to apply this location."
+                  : "";
+
+
+            applyFilters();
+
+          }
+
+        }
+      );
+
+
+    document
+      .getElementById(
+        "distanceRadius"
+      )
+      .addEventListener(
+        "change",
+        () => {
+
+          if (
+            distanceOrigin
+          ) {
+
+            applyFilters();
+
+          }
+
+        }
+      );
+
+
+    document
+      .getElementById(
         "categoryFilter"
       )
       .addEventListener(
@@ -2651,6 +3675,23 @@
               "search"
             )
             .value = "";
+
+
+          document
+            .getElementById(
+              "distanceLocation"
+            )
+            .value = "";
+
+
+          document
+            .getElementById(
+              "distanceRadius"
+            )
+            .value = "25";
+
+
+          clearDistanceOrigin();
 
 
           document
