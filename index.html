@@ -8,7 +8,7 @@
     content="width=device-width, initial-scale=1.0"
   />
 
-  <title>UK Judo Events Map v1.7</title>
+  <title>UK Judo Events Map</title>
 
   <link
     rel="stylesheet"
@@ -91,13 +91,6 @@
       white-space: nowrap;
     }
 
-    .version {
-      color: rgba(255, 255, 255, 0.64);
-      font-size: 11px;
-      font-weight: 700;
-      letter-spacing: 0.04em;
-    }
-
     #status {
       display: flex;
       align-items: center;
@@ -109,6 +102,70 @@
       line-height: 1.25;
       text-align: right;
       white-space: nowrap;
+    }
+
+    .header-actions {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 10px;
+      min-width: 0;
+    }
+
+    #aboutButton {
+      min-height: 30px;
+      padding: 5px 9px;
+      border: 1px solid rgba(255, 255, 255, 0.35);
+      border-radius: 6px;
+      background: rgba(255, 255, 255, 0.10);
+      color: #fff;
+      cursor: pointer;
+      font-size: 11px;
+      font-weight: 800;
+    }
+
+    #aboutButton:hover,
+    #aboutButton[aria-expanded="true"] {
+      background: rgba(255, 255, 255, 0.20);
+    }
+
+    #aboutPanel {
+      position: absolute;
+      top: calc(100% + 9px);
+      right: 0;
+      z-index: 50;
+      width: min(380px, calc(100vw - 24px));
+      padding: 14px 15px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: #fff;
+      color: var(--text);
+      box-shadow: 0 8px 28px rgba(0, 0, 0, 0.20);
+      text-align: left;
+      white-space: normal;
+    }
+
+    #aboutPanel h2 {
+      margin: 0 0 8px;
+      color: #252a31;
+      font-size: 16px;
+      line-height: 1.3;
+    }
+
+    #aboutPanel p {
+      margin: 0 0 9px;
+      color: #596274;
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    #aboutPanel p:last-child {
+      margin-bottom: 0;
+    }
+
+    #aboutPanel strong {
+      color: #343b45;
     }
 
     .status-spinner {
@@ -234,17 +291,6 @@
 
     #distanceStatus.error {
       color: #b42318;
-    }
-
-    .geocoder-attribution {
-      margin-top: 3px;
-      color: #7a8491;
-      font-size: 9px;
-      line-height: 1.3;
-    }
-
-    .geocoder-attribution a {
-      color: inherit;
     }
 
     .filter-actions {
@@ -534,28 +580,6 @@
       inset: 0;
     }
 
-    #resetMap {
-      position: absolute;
-      top: 10px;
-      left: 10px;
-      z-index: 5;
-      min-height: 32px;
-      padding: 6px 10px;
-      border: 1px solid rgba(0, 0, 0, 0.16);
-      border-radius: 6px;
-      background: rgba(255, 255, 255, 0.96);
-      color: #3f4752;
-      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.16);
-      cursor: pointer;
-      font-size: 12px;
-      font-weight: 700;
-    }
-
-    #resetMap:hover {
-      background: #fff;
-    }
-
-
     #mapModeNotice {
       position: absolute;
       top: 10px;
@@ -697,16 +721,30 @@
         white-space: nowrap;
       }
 
-      .version {
-        display: inline;
-        flex: 0 0 auto;
-        font-size: 9px;
+      .header-actions {
+        gap: 6px;
       }
 
       #status {
-        max-width: 40vw;
+        max-width: 31vw;
         font-size: 10px;
         white-space: normal;
+      }
+
+      #aboutButton {
+        min-height: 28px;
+        padding: 4px 7px;
+        font-size: 10px;
+      }
+
+      #aboutPanel {
+        position: fixed;
+        top: 58px;
+        right: 8px;
+        left: 8px;
+        width: auto;
+        max-height: calc(100vh - 74px);
+        overflow-y: auto;
       }
 
       #app {
@@ -770,11 +808,6 @@
         min-height: 220px;
       }
 
-      #resetMap {
-        top: 8px;
-        left: 8px;
-      }
-
       .maplibregl-popup-content {
         width: min(280px, calc(100vw - 34px));
         max-width: min(280px, calc(100vw - 34px));
@@ -789,15 +822,61 @@
   <header>
     <div class="header-title">
       <h1>UK Judo Events Map</h1>
-      <span class="version">v1.7</span>
     </div>
 
-    <div
-      id="status"
-      aria-live="polite"
-    >
-      <span class="status-spinner" aria-hidden="true"></span>
-      <span>Loading events…</span>
+    <div class="header-actions">
+
+      <div
+        id="status"
+        aria-live="polite"
+      >
+        <span class="status-spinner" aria-hidden="true"></span>
+        <span>Loading events…</span>
+      </div>
+
+      <button
+        id="aboutButton"
+        type="button"
+        aria-expanded="false"
+        aria-controls="aboutPanel"
+      >
+        About
+      </button>
+
+      <div
+        id="aboutPanel"
+        hidden
+      >
+        <h2>About UK Judo Events Map</h2>
+
+        <p>
+          This website is an independent event-discovery tool designed
+          to make it quicker and easier for judoka to find nearby and
+          online judo events across the UK.
+        </p>
+
+        <p>
+          Event information is collected from publicly available
+          listings published by judo organisations and reorganised into
+          a searchable map and event list.
+        </p>
+
+        <p>
+          <strong>
+            This website is not affiliated with, endorsed by, or
+            operated by British Judo or any other judo organisation.
+          </strong>
+        </p>
+
+        <p>
+          This website is not an authoritative source of event
+          information. Event details can change or may be incomplete.
+          Always check the organiser's official event page for the
+          latest dates, venue details, eligibility requirements and
+          entry information before travelling or entering.
+        </p>
+      </div>
+
     </div>
   </header>
 
@@ -875,14 +954,6 @@
             aria-live="polite"
           ></div>
 
-          <div class="geocoder-attribution">
-            Location search data ©
-            <a
-              href="https://www.openstreetmap.org/copyright"
-              target="_blank"
-              rel="noopener noreferrer"
-            >OpenStreetMap contributors</a>
-          </div>
         </div>
 
 
@@ -1011,14 +1082,6 @@
 
       <div id="map"></div>
 
-      <button
-        id="resetMap"
-        type="button"
-        title="Reset map to the UK"
-      >
-        Reset map
-      </button>
-
       <div
         id="mapModeNotice"
         hidden
@@ -1123,6 +1186,120 @@
     );
 
 
+    class ResetMapControl {
+
+      onAdd(mapInstance) {
+
+        this.map =
+          mapInstance;
+
+
+        this.container =
+          document.createElement(
+            "div"
+          );
+
+
+        this.container.className =
+          "maplibregl-ctrl maplibregl-ctrl-group";
+
+
+        this.button =
+          document.createElement(
+            "button"
+          );
+
+
+        this.button.type =
+          "button";
+
+
+        this.button.title =
+          "Reset map";
+
+
+        this.button.setAttribute(
+          "aria-label",
+          "Reset map to UK view"
+        );
+
+
+        this.button.innerHTML = `
+          <svg
+            viewBox="0 0 24 24"
+            width="18"
+            height="18"
+            aria-hidden="true"
+          >
+            <path
+              d="M3 6.5L8.5 4L15.5 6.5L21 4V17.5L15.5 20L8.5 17.5L3 20V6.5Z"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linejoin="round"
+            />
+            <path
+              d="M8.5 4V17.5M15.5 6.5V20"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            />
+          </svg>
+        `;
+
+
+        this.button.addEventListener(
+          "click",
+          this.handleClick =
+            () => {
+
+              this.map.fitBounds(
+                UK_BOUNDS,
+                {
+                  padding: 30,
+                  duration: 650
+                }
+              );
+
+            }
+        );
+
+
+        this.container.appendChild(
+          this.button
+        );
+
+
+        return this.container;
+
+      }
+
+
+      onRemove() {
+
+        this.button.removeEventListener(
+          "click",
+          this.handleClick
+        );
+
+
+        this.container.remove();
+
+
+        this.map =
+          undefined;
+
+      }
+
+    }
+
+
+    map.addControl(
+      new ResetMapControl(),
+      "top-right"
+    );
+
+
     /* ====================================================
        LOADING UI
     ==================================================== */
@@ -1195,36 +1372,10 @@
 
     function setStatusLoaded() {
 
-      const loadedTime =
-        new Date()
-          .toLocaleTimeString(
-            "en-GB",
-            {
-              hour:
-                "2-digit",
-
-              minute:
-                "2-digit"
-            }
-          );
-
-
-      const mapCount =
-        allEvents.filter(
-          isMapEvent
-        ).length;
-
-
-      const onlineCount =
-        allEvents.filter(
-          isOnlineEvent
-        ).length;
-
-
       document
         .getElementById("status")
         .textContent =
-          `${mapCount} map · ${onlineCount} online · ${loadedTime}`;
+          `${allEvents.length} events loaded`;
 
     }
 
@@ -2682,14 +2833,6 @@
           !online;
 
 
-      document
-        .getElementById(
-          "resetMap"
-        )
-        .hidden =
-          online;
-
-
       /*
        * Distance controls have no meaning for online
        * events. Leave the user's values in place so they
@@ -4102,6 +4245,97 @@
 
 
     /* ====================================================
+       ABOUT PANEL
+    ==================================================== */
+
+    const aboutButton =
+      document.getElementById(
+        "aboutButton"
+      );
+
+
+    const aboutPanel =
+      document.getElementById(
+        "aboutPanel"
+      );
+
+
+    function setAboutOpen(
+      open
+    ) {
+
+      aboutPanel.hidden =
+        !open;
+
+
+      aboutButton.setAttribute(
+        "aria-expanded",
+        String(open)
+      );
+
+    }
+
+
+    aboutButton.addEventListener(
+      "click",
+      event => {
+
+        event.stopPropagation();
+
+
+        setAboutOpen(
+          aboutPanel.hidden
+        );
+
+      }
+    );
+
+
+    aboutPanel.addEventListener(
+      "click",
+      event => {
+
+        event.stopPropagation();
+
+      }
+    );
+
+
+    document.addEventListener(
+      "click",
+      () => {
+
+        setAboutOpen(
+          false
+        );
+
+      }
+    );
+
+
+    document.addEventListener(
+      "keydown",
+      event => {
+
+        if (
+          event.key ===
+          "Escape"
+        ) {
+
+          setAboutOpen(
+            false
+          );
+
+
+          aboutButton.focus();
+
+        }
+
+      }
+    );
+
+
+    /* ====================================================
        MAP / ONLINE VIEW BUTTONS
     ==================================================== */
 
@@ -4397,30 +4631,6 @@
           updateViewModeUI();
 
           applyFilters();
-
-        }
-      );
-
-
-    /* ====================================================
-       RESET MAP
-    ==================================================== */
-
-    document
-      .getElementById(
-        "resetMap"
-      )
-      .addEventListener(
-        "click",
-        () => {
-
-          map.fitBounds(
-            UK_BOUNDS,
-            {
-              padding: 30,
-              duration: 650
-            }
-          );
 
         }
       );
