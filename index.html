@@ -8,7 +8,7 @@
     content="width=device-width, initial-scale=1.0"
   />
 
-  <title>UK Judo Events Map v1.6</title>
+  <title>UK Judo Events Map v1.7</title>
 
   <link
     rel="stylesheet"
@@ -278,6 +278,47 @@
       background: #fff;
     }
 
+    .event-view-toggle {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4px;
+      padding: 8px 8px 7px;
+      border-bottom: 1px solid var(--border);
+      background: #fff;
+    }
+
+    .event-view-button {
+      min-height: 34px;
+      padding: 6px 8px;
+      border: 1px solid #cfd5dc;
+      border-radius: 6px;
+      background: #fff;
+      color: #505966;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .event-view-button:hover:not(:disabled) {
+      border-color: #aeb6c1;
+      background: #f7f8fa;
+    }
+
+    .event-view-button.active {
+      border-color: var(--brand);
+      background: var(--brand);
+      color: #fff;
+    }
+
+    .online-mode-note {
+      padding: 7px 12px;
+      border-bottom: 1px solid var(--border);
+      background: #f7f8ff;
+      color: #596274;
+      font-size: 10px;
+      line-height: 1.4;
+    }
+
     #resultCount {
       flex: 0 0 auto;
       padding: 9px 12px;
@@ -353,6 +394,35 @@
       color: #3349a6;
       font-size: 11px;
       font-weight: 800;
+    }
+
+
+    .online-badge {
+      display: inline-block;
+      margin-bottom: 5px;
+      padding: 3px 7px;
+      border-radius: 999px;
+      background: var(--brand-soft);
+      color: var(--brand);
+      font-size: 9px;
+      font-weight: 900;
+      letter-spacing: 0.06em;
+    }
+
+    .event-official-link {
+      display: inline-block;
+      margin-top: 9px;
+      padding: 6px 8px;
+      border-radius: 5px;
+      background: var(--brand);
+      color: #fff;
+      text-decoration: none;
+      font-size: 11px;
+      font-weight: 800;
+    }
+
+    .event-official-link:hover {
+      background: var(--brand-dark);
     }
 
     .event-categories {
@@ -483,6 +553,30 @@
 
     #resetMap:hover {
       background: #fff;
+    }
+
+
+    #mapModeNotice {
+      position: absolute;
+      top: 10px;
+      left: 50%;
+      z-index: 5;
+      max-width: min(360px, calc(100% - 120px));
+      padding: 7px 10px;
+      border: 1px solid rgba(0, 0, 0, 0.12);
+      border-radius: 6px;
+      background: rgba(255, 255, 255, 0.96);
+      color: #596274;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.14);
+      font-size: 11px;
+      font-weight: 700;
+      line-height: 1.35;
+      text-align: center;
+      transform: translateX(-50%);
+    }
+
+    [hidden] {
+      display: none !important;
     }
 
     .maplibregl-popup-content {
@@ -695,7 +789,7 @@
   <header>
     <div class="header-title">
       <h1>UK Judo Events Map</h1>
-      <span class="version">v1.6</span>
+      <span class="version">v1.7</span>
     </div>
 
     <div
@@ -870,6 +964,38 @@
 
       <div id="resultsPanel">
 
+        <div
+          class="event-view-toggle"
+          role="group"
+          aria-label="Event view"
+        >
+          <button
+            id="mapEventsView"
+            class="event-view-button active"
+            type="button"
+            aria-pressed="true"
+          >
+            Map events
+          </button>
+
+          <button
+            id="onlineEventsView"
+            class="event-view-button"
+            type="button"
+            aria-pressed="false"
+          >
+            Online events
+          </button>
+        </div>
+
+        <div
+          id="onlineModeNote"
+          class="online-mode-note"
+          hidden
+        >
+          Online events are not filtered by postcode, distance or map area.
+        </div>
+
         <div id="resultCount">
           Loading events…
         </div>
@@ -892,6 +1018,13 @@
       >
         Reset map
       </button>
+
+      <div
+        id="mapModeNotice"
+        hidden
+      >
+        Online events do not have map locations.
+      </div>
 
     </div>
 
@@ -935,6 +1068,12 @@
     let activePopup = null;
 
     let dataLoaded = false;
+
+    /*
+     * "map" = physical events with coordinates.
+     * "online" = online/virtual events.
+     */
+    let viewMode = "map";
 
 
     /*
@@ -1070,14 +1209,22 @@
           );
 
 
+      const mapCount =
+        allEvents.filter(
+          isMapEvent
+        ).length;
+
+
+      const onlineCount =
+        allEvents.filter(
+          isOnlineEvent
+        ).length;
+
+
       document
         .getElementById("status")
         .textContent =
-          `${allEvents.length} mapped ${
-            allEvents.length === 1
-              ? "event"
-              : "events"
-          } · Loaded ${loadedTime}`;
+          `${mapCount} map · ${onlineCount} online · ${loadedTime}`;
 
     }
 
@@ -1116,21 +1263,20 @@
         (data.events ?? [])
           .map(event => {
 
+            /*
+             * Do not use Number(null) here:
+             * Number(null) is 0 and would create a false
+             * marker at 0,0 for coordinate-less events.
+             */
             const longitude =
-              Number(event.longitude);
+              parseCoordinate(
+                event.longitude
+              );
 
             const latitude =
-              Number(event.latitude);
-
-
-            if (
-              !Number.isFinite(longitude) ||
-              !Number.isFinite(latitude)
-            ) {
-
-              return null;
-
-            }
+              parseCoordinate(
+                event.latitude
+              );
 
 
             let categories =
@@ -1175,8 +1321,7 @@
 
             };
 
-          })
-          .filter(Boolean);
+          });
 
 
       allEvents.sort(
@@ -1201,6 +1346,8 @@
 
       setFiltersDisabled(false);
 
+      updateViewModeUI();
+
 
       const initialLocation =
         document
@@ -1211,7 +1358,10 @@
           .trim();
 
 
-      if (initialLocation) {
+      if (
+        viewMode === "map" &&
+        initialLocation
+      ) {
 
         await resolveDistanceLocation({
           updateUrl:
@@ -1413,6 +1563,13 @@
           ? requestedRadius
           : "25";
 
+
+      viewMode =
+        params.get("view") ===
+          "online"
+          ? "online"
+          : "map";
+
     }
 
 
@@ -1507,6 +1664,7 @@
 
 
       if (
+        viewMode === "map" &&
         distanceOrigin &&
         distanceLocation
       ) {
@@ -1519,6 +1677,18 @@
         params.set(
           "radius",
           distanceRadius
+        );
+
+      }
+
+
+      if (
+        viewMode === "online"
+      ) {
+
+        params.set(
+          "view",
+          "online"
         );
 
       }
@@ -1548,6 +1718,150 @@
 
 
     /* ====================================================
+       EVENT TYPE / COORDINATE HELPERS
+    ==================================================== */
+
+    function parseCoordinate(
+      value
+    ) {
+
+      if (
+        value === null ||
+        value === undefined ||
+        String(value).trim() === ""
+      ) {
+
+        return null;
+
+      }
+
+
+      const number =
+        Number(value);
+
+
+      return Number.isFinite(
+        number
+      )
+        ? number
+        : null;
+
+    }
+
+
+    function hasMapCoordinates(
+      event
+    ) {
+
+      return (
+        Number.isFinite(
+          event.latitude
+        ) &&
+        Number.isFinite(
+          event.longitude
+        )
+      );
+
+    }
+
+
+    function truthyFlag(
+      value
+    ) {
+
+      if (
+        value === true ||
+        value === 1
+      ) {
+
+        return true;
+
+      }
+
+
+      const text =
+        String(
+          value ?? ""
+        )
+          .trim()
+          .toLowerCase();
+
+
+      return (
+        text === "1" ||
+        text === "true" ||
+        text === "yes"
+      );
+
+    }
+
+
+    function isOnlineEvent(
+      event
+    ) {
+
+      if (
+        truthyFlag(
+          event.is_virtual
+        )
+      ) {
+
+        return true;
+
+      }
+
+
+      if (
+        String(
+          event.virtual_url ??
+          ""
+        ).trim()
+      ) {
+
+        return true;
+
+      }
+
+
+      /*
+       * BJA does not consistently mark online events as
+       * virtual, so use known online venue wording as a
+       * fallback.
+       */
+      const venueText =
+        [
+          event.venue_name,
+          event.address,
+          event.city
+        ]
+          .filter(Boolean)
+          .join(" ")
+          .toLowerCase();
+
+
+      return (
+        /\b(online|zoom|webinar|virtual|ms teams|microsoft teams)\b/
+          .test(
+            venueText
+          )
+      );
+
+    }
+
+
+    function isMapEvent(
+      event
+    ) {
+
+      return (
+        !isOnlineEvent(event) &&
+        hasMapCoordinates(event)
+      );
+
+    }
+
+
+    /* ====================================================
        GEOJSON
     ==================================================== */
 
@@ -1559,7 +1873,11 @@
           "FeatureCollection",
 
         features:
-          events.map(event => ({
+          events
+            .filter(
+              isMapEvent
+            )
+            .map(event => ({
 
             type:
               "Feature",
@@ -2302,6 +2620,177 @@
 
 
     /* ====================================================
+       MAP / ONLINE VIEW
+    ==================================================== */
+
+    function updateViewModeUI() {
+
+      const online =
+        viewMode ===
+        "online";
+
+
+      const mapButton =
+        document.getElementById(
+          "mapEventsView"
+        );
+
+
+      const onlineButton =
+        document.getElementById(
+          "onlineEventsView"
+        );
+
+
+      mapButton.classList.toggle(
+        "active",
+        !online
+      );
+
+
+      onlineButton.classList.toggle(
+        "active",
+        online
+      );
+
+
+      mapButton.setAttribute(
+        "aria-pressed",
+        String(!online)
+      );
+
+
+      onlineButton.setAttribute(
+        "aria-pressed",
+        String(online)
+      );
+
+
+      document
+        .getElementById(
+          "onlineModeNote"
+        )
+        .hidden =
+          !online;
+
+
+      document
+        .getElementById(
+          "mapModeNotice"
+        )
+        .hidden =
+          !online;
+
+
+      document
+        .getElementById(
+          "resetMap"
+        )
+        .hidden =
+          online;
+
+
+      /*
+       * Distance controls have no meaning for online
+       * events. Leave the user's values in place so they
+       * are restored when switching back to Map events.
+       */
+      if (dataLoaded) {
+
+        document
+          .getElementById(
+            "distanceLocation"
+          )
+          .disabled =
+            online;
+
+
+        document
+          .getElementById(
+            "distanceRadius"
+          )
+          .disabled =
+            online;
+
+
+        document
+          .getElementById(
+            "applyDistance"
+          )
+          .disabled =
+            online;
+
+      }
+
+
+      if (
+        map.getLayer(
+          "search-location-point"
+        )
+      ) {
+
+        map.setLayoutProperty(
+          "search-location-point",
+          "visibility",
+          online
+            ? "none"
+            : "visible"
+        );
+
+      }
+
+    }
+
+
+    function setViewMode(
+      mode
+    ) {
+
+      const nextMode =
+        mode === "online"
+          ? "online"
+          : "map";
+
+
+      if (
+        nextMode === viewMode
+      ) {
+
+        updateViewModeUI();
+
+        return;
+
+      }
+
+
+      viewMode =
+        nextMode;
+
+
+      selectedEventId =
+        null;
+
+
+      if (activePopup) {
+
+        activePopup.remove();
+
+        activePopup =
+          null;
+
+      }
+
+
+      updateSelectedMarker();
+
+      updateViewModeUI();
+
+      applyFilters();
+
+    }
+
+
+    /* ====================================================
        FILTERING
     ==================================================== */
 
@@ -2358,6 +2847,32 @@
 
       filteredEvents =
         allEvents.filter(event => {
+
+          if (
+            viewMode === "online"
+          ) {
+
+            if (
+              !isOnlineEvent(event)
+            ) {
+
+              return false;
+
+            }
+
+          }
+          else {
+
+            if (
+              !isMapEvent(event)
+            ) {
+
+              return false;
+
+            }
+
+          }
+
 
           const searchableText = [
 
@@ -2431,6 +2946,7 @@
 
 
           if (
+            viewMode === "map" &&
             distanceOrigin &&
             Number.isFinite(
               distanceRadius
@@ -2520,7 +3036,9 @@
 
       source.setData(
         eventsToGeoJSON(
-          filteredEvents
+          viewMode === "map"
+            ? filteredEvents
+            : []
         )
       );
 
@@ -2535,6 +3053,15 @@
     ==================================================== */
 
     function getVisibleEvents() {
+
+      if (
+        viewMode === "online"
+      ) {
+
+        return filteredEvents;
+
+      }
+
 
       if (!map.loaded()) {
 
@@ -2592,12 +3119,20 @@
       ) {
 
         resultCount.textContent =
-          "0 events matching filters";
+          viewMode === "online"
+            ? "0 online events matching filters"
+            : "0 events matching filters";
 
 
         container.innerHTML = `
           <div class="empty-state">
-            <strong>No events match these filters.</strong>
+            <strong>
+              ${
+                viewMode === "online"
+                  ? "No online events match these filters."
+                  : "No events match these filters."
+              }
+            </strong>
             <span>
               Change the search, event type or date range,
               or reset the filters.
@@ -2610,31 +3145,47 @@
       }
 
 
-      resultCount.textContent =
-        `${visibleEvents.length} ${
-          visibleEvents.length === 1
-            ? "event"
-            : "events"
-        } in this map area` +
-        (
-          visibleEvents.length !==
-          filteredEvents.length
+      if (
+        viewMode === "online"
+      ) {
 
-            ? ` · ${filteredEvents.length} matching filters`
+        resultCount.textContent =
+          `${filteredEvents.length} online ${
+            filteredEvents.length === 1
+              ? "event"
+              : "events"
+          } matching filters`;
 
-            : ""
-        ) +
-        (
-          distanceOrigin
-            ? ` · within ${
-                document
-                  .getElementById(
-                    "distanceRadius"
-                  )
-                  .value
-              } miles`
-            : ""
-        );
+      }
+      else {
+
+        resultCount.textContent =
+          `${visibleEvents.length} ${
+            visibleEvents.length === 1
+              ? "event"
+              : "events"
+          } in this map area` +
+          (
+            visibleEvents.length !==
+            filteredEvents.length
+
+              ? ` · ${filteredEvents.length} matching filters`
+
+              : ""
+          ) +
+          (
+            distanceOrigin
+              ? ` · within ${
+                  document
+                    .getElementById(
+                      "distanceRadius"
+                    )
+                    .value
+                } miles`
+              : ""
+          );
+
+      }
 
 
       container.innerHTML =
@@ -2642,6 +3193,7 @@
 
 
       if (
+        viewMode === "map" &&
         visibleEvents.length === 0
       ) {
 
@@ -2747,6 +3299,46 @@
             .join(" ");
 
 
+        const onlineEvent =
+          isOnlineEvent(
+            event
+          );
+
+
+        const officialUrl =
+          event.bja_url ||
+          event.rest_url ||
+          "";
+
+
+        const onlineBadgeHtml =
+          onlineEvent
+            ? `
+              <div class="online-badge">
+                ONLINE
+              </div>
+            `
+            : "";
+
+
+        const officialLinkHtml =
+          onlineEvent &&
+          officialUrl
+            ? `
+              <a
+                class="event-official-link"
+                href="${escapeAttribute(
+                  officialUrl
+                )}"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                View official details
+              </a>
+            `
+            : "";
+
+
         const distance =
           eventDistanceMiles(
             event
@@ -2768,6 +3360,8 @@
 
 
         item.innerHTML = `
+
+          ${onlineBadgeHtml}
 
           <div class="event-date">
             ${escapeHtml(
@@ -2792,7 +3386,11 @@
                 ? escapeHtml(
                     event.venue_name
                   )
-                : "Venue unavailable"
+                : (
+                    onlineEvent
+                      ? "Online event"
+                      : "Venue unavailable"
+                  )
             }
 
             ${
@@ -2811,43 +3409,63 @@
 
           ${categoriesHtml}
 
+          ${officialLinkHtml}
+
         `;
 
 
-        item.addEventListener(
-          "click",
-          () => {
+        if (!onlineEvent) {
 
-            selectEvent(
-              event
-            );
-
-          }
-        );
-
-
-        item.addEventListener(
-          "keydown",
-          keyboardEvent => {
-
-            if (
-              keyboardEvent.key ===
-                "Enter" ||
-              keyboardEvent.key ===
-                " "
-            ) {
-
-              keyboardEvent
-                .preventDefault();
+          item.addEventListener(
+            "click",
+            () => {
 
               selectEvent(
                 event
               );
 
             }
+          );
 
-          }
-        );
+
+          item.addEventListener(
+            "keydown",
+            keyboardEvent => {
+
+              if (
+                keyboardEvent.key ===
+                  "Enter" ||
+                keyboardEvent.key ===
+                  " "
+              ) {
+
+                keyboardEvent
+                  .preventDefault();
+
+                selectEvent(
+                  event
+                );
+
+              }
+
+            }
+          );
+
+        }
+        else {
+
+          item.removeAttribute(
+            "role"
+          );
+
+          item.removeAttribute(
+            "tabindex"
+          );
+
+          item.style.cursor =
+            "default";
+
+        }
 
 
         container.appendChild(
@@ -2911,6 +3529,15 @@
 
 
     function selectEvent(event) {
+
+      if (
+        !isMapEvent(event)
+      ) {
+
+        return;
+
+      }
+
 
       setSelectedEvent(
         event
@@ -3475,6 +4102,42 @@
 
 
     /* ====================================================
+       MAP / ONLINE VIEW BUTTONS
+    ==================================================== */
+
+    document
+      .getElementById(
+        "mapEventsView"
+      )
+      .addEventListener(
+        "click",
+        () => {
+
+          setViewMode(
+            "map"
+          );
+
+        }
+      );
+
+
+    document
+      .getElementById(
+        "onlineEventsView"
+      )
+      .addEventListener(
+        "click",
+        () => {
+
+          setViewMode(
+            "online"
+          );
+
+        }
+      );
+
+
+    /* ====================================================
        MAP MOVEMENT
     ==================================================== */
 
@@ -3731,6 +4394,8 @@
           }
 
 
+          updateViewModeUI();
+
           applyFilters();
 
         }
@@ -3960,6 +4625,20 @@
             false;
 
           setFiltersDisabled(true);
+
+          document
+            .getElementById(
+              "mapEventsView"
+            )
+            .disabled =
+              true;
+
+          document
+            .getElementById(
+              "onlineEventsView"
+            )
+            .disabled =
+              true;
 
 
           document
