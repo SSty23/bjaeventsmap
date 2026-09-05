@@ -26,6 +26,9 @@
       --surface: #ffffff;
       --surface-soft: #f7f8fa;
       --marker: #e53935;
+      --source-bja: #e53935;
+      --source-bjc: #0f9d58;
+      --source-aja: #f59e0b;
       --radius: 8px;
       --shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
     }
@@ -443,16 +446,59 @@
     }
 
 
-    .online-badge {
-      display: inline-block;
+    .event-badges {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 4px;
       margin-bottom: 5px;
+    }
+
+    .online-badge,
+    .source-badge {
+      display: inline-block;
       padding: 3px 7px;
+      border: 1px solid transparent;
       border-radius: 999px;
-      background: var(--brand-soft);
-      color: var(--brand);
       font-size: 9px;
       font-weight: 900;
       letter-spacing: 0.06em;
+      line-height: 1.2;
+    }
+
+    .online-badge {
+      background: var(--brand-soft);
+      color: var(--brand);
+    }
+
+    .source-badge-bja {
+      border-color: #f3c3c0;
+      background: #fdeceb;
+      color: #b42318;
+    }
+
+    .source-badge-bjc {
+      border-color: #b9dfc9;
+      background: #eaf6ef;
+      color: #08783f;
+    }
+
+    .source-badge-aja {
+      border-color: #f2d39b;
+      background: #fff5df;
+      color: #9a5b00;
+    }
+
+    .source-badge-other {
+      border-color: #d7dce2;
+      background: #f4f6f8;
+      color: #4b5563;
+    }
+
+    .popup-source-badge {
+      margin-bottom: 5px;
+      padding: 2px 6px;
+      font-size: 8px;
     }
 
     .event-official-link {
@@ -1467,6 +1513,22 @@
 
 
         <div class="filter-group">
+          <label for="sourceFilter">
+            Source
+          </label>
+
+          <select
+            id="sourceFilter"
+            disabled
+          >
+            <option value="">
+              All sources
+            </option>
+          </select>
+        </div>
+
+
+        <div class="filter-group">
           <label for="categoryFilter">
             Event type
           </label>
@@ -1832,6 +1894,7 @@
           "distanceLocation",
           "distanceRadius",
           "applyDistance",
+          "sourceFilter",
           "categoryFilter",
           "fromDate",
           "toDate",
@@ -1980,6 +2043,7 @@
       );
 
 
+      populateSourceFilter();
       populateCategoryFilter();
 
       setupEventSource();
@@ -2028,6 +2092,112 @@
 
 
       setStatusLoaded();
+
+    }
+
+
+    /* ====================================================
+       SOURCE FILTER / DISPLAY
+    ==================================================== */
+
+    function normaliseSource(value) {
+
+      const source =
+        String(value ?? "BJA")
+          .trim()
+          .toUpperCase();
+
+      return source || "BJA";
+
+    }
+
+
+    function sourceDisplayName(value) {
+
+      const source =
+        normaliseSource(value);
+
+      const names = {
+        BJA: "British Judo",
+        BJC: "British Judo Council",
+        AJA: "AJA"
+      };
+
+      return names[source] || source;
+
+    }
+
+
+    function sourceBadgeClass(value) {
+
+      const source =
+        normaliseSource(value);
+
+      if (
+        source === "BJA" ||
+        source === "BJC" ||
+        source === "AJA"
+      ) {
+        return `source-badge-${source.toLowerCase()}`;
+      }
+
+      return "source-badge-other";
+
+    }
+
+
+    function getOfficialEventUrl(event) {
+
+      return (
+        event.source_url ||
+        event.bja_url ||
+        event.rest_url ||
+        ""
+      );
+
+    }
+
+
+    function populateSourceFilter() {
+
+      const select =
+        document.getElementById(
+          "sourceFilter"
+        );
+
+      const sources =
+        Array.from(
+          new Set(
+            allEvents.map(
+              event =>
+                normaliseSource(
+                  event.source
+                )
+            )
+          )
+        )
+          .sort();
+
+      select.innerHTML = `
+        <option value="">
+          All sources
+        </option>
+      `;
+
+      for (const source of sources) {
+
+        const option =
+          document.createElement(
+            "option"
+          );
+
+        option.value = source;
+        option.textContent =
+          `${source} — ${sourceDisplayName(source)}`;
+
+        select.appendChild(option);
+
+      }
 
     }
 
@@ -2161,6 +2331,36 @@
           : "";
 
 
+      const requestedSource =
+        normaliseSource(
+          params.get("source") || ""
+        );
+
+
+      const sourceSelect =
+        document.getElementById(
+          "sourceFilter"
+        );
+
+
+      const sourceExists =
+        params.has("source") &&
+        Array.from(
+          sourceSelect.options
+        )
+          .some(
+            option =>
+              option.value ===
+              requestedSource
+          );
+
+
+      sourceSelect.value =
+        sourceExists
+          ? requestedSource
+          : "";
+
+
       document
         .getElementById("fromDate")
         .value =
@@ -2239,6 +2439,14 @@
           .value;
 
 
+      const sourceFilter =
+        document
+          .getElementById(
+            "sourceFilter"
+          )
+          .value;
+
+
       const fromDate =
         document
           .getElementById("fromDate")
@@ -2283,6 +2491,16 @@
         params.set(
           "category",
           category
+        );
+
+      }
+
+
+      if (sourceFilter) {
+
+        params.set(
+          "source",
+          sourceFilter
         );
 
       }
@@ -2548,7 +2766,12 @@
                 event.title ?? "",
 
               venue_name:
-                event.venue_name ?? ""
+                event.venue_name ?? "",
+
+              source:
+                normaliseSource(
+                  event.source
+                )
 
             }
 
@@ -2634,8 +2857,13 @@
 
         paint: {
 
-          "circle-color":
-            "#e53935",
+          "circle-color": [
+            "match",
+            ["get", "source"],
+            "BJC", "#0f9d58",
+            "AJA", "#f59e0b",
+            "#e53935"
+          ],
 
           "circle-radius":
             10,
@@ -3460,6 +3688,14 @@
           .value;
 
 
+      const sourceFilter =
+        document
+          .getElementById(
+            "sourceFilter"
+          )
+          .value;
+
+
       const fromDate =
         document
           .getElementById("fromDate")
@@ -3511,12 +3747,26 @@
           }
 
 
+          if (
+            sourceFilter &&
+            normaliseSource(
+              event.source
+            ) !== sourceFilter
+          ) {
+
+            return false;
+
+          }
+
+
           const searchableText = [
 
             event.title,
             event.venue_name,
             event.city,
-            event.postcode
+            event.postcode,
+            normaliseSource(event.source),
+            sourceDisplayName(event.source)
 
           ]
             .filter(Boolean)
@@ -3771,7 +4021,7 @@
               }
             </strong>
             <span>
-              Change the search, event type or date range,
+              Change the search, source, event type or date range,
               or reset the filters.
             </span>
           </div>
@@ -3943,23 +4193,48 @@
 
 
         const officialUrl =
-          event.bja_url ||
-          event.rest_url ||
-          "";
+          getOfficialEventUrl(
+            event
+          );
+
+
+        const sourceCode =
+          normaliseSource(
+            event.source
+          );
+
+
+        const sourceBadgeHtml = `
+          <span
+            class="source-badge ${sourceBadgeClass(sourceCode)}"
+            title="${escapeAttribute(
+              sourceDisplayName(sourceCode)
+            )}"
+          >
+            ${escapeHtml(sourceCode)}
+          </span>
+        `;
 
 
         const onlineBadgeHtml =
           onlineEvent
             ? `
-              <div class="online-badge">
+              <span class="online-badge">
                 ONLINE
-              </div>
+              </span>
             `
             : "";
 
 
+        const badgesHtml = `
+          <div class="event-badges">
+            ${sourceBadgeHtml}
+            ${onlineBadgeHtml}
+          </div>
+        `;
+
+
         const officialLinkHtml =
-          onlineEvent &&
           officialUrl
             ? `
               <a
@@ -3998,7 +4273,7 @@
 
         item.innerHTML = `
 
-          ${onlineBadgeHtml}
+          ${badgesHtml}
 
           <div class="event-date">
             ${escapeHtml(
@@ -4049,6 +4324,28 @@
           ${officialLinkHtml}
 
         `;
+
+
+        for (
+          const link of
+          item.querySelectorAll("a")
+        ) {
+
+          link.addEventListener(
+            "click",
+            event => {
+              event.stopPropagation();
+            }
+          );
+
+          link.addEventListener(
+            "keydown",
+            event => {
+              event.stopPropagation();
+            }
+          );
+
+        }
 
 
         if (!onlineEvent) {
@@ -4246,7 +4543,7 @@
 
 
     /* ====================================================
-       RED MARKER CLICK
+       EVENT MARKER CLICK
     ==================================================== */
 
     map.on(
@@ -4453,18 +4750,24 @@
               "";
 
 
-            if (event.bja_url) {
+            const officialUrl =
+              getOfficialEventUrl(
+                event
+              );
+
+
+            if (officialUrl) {
 
               linkHtml = `
 
                 <a
                   href="${escapeAttribute(
-                    event.bja_url
+                    officialUrl
                   )}"
                   target="_blank"
                   rel="noopener noreferrer"
                 >
-                  View event
+                  View official details
                 </a>
 
               `;
@@ -4472,9 +4775,29 @@
             }
 
 
+            const sourceCode =
+              normaliseSource(
+                event.source
+              );
+
+
+            const popupSourceBadge = `
+              <span
+                class="source-badge popup-source-badge ${sourceBadgeClass(sourceCode)}"
+                title="${escapeAttribute(
+                  sourceDisplayName(sourceCode)
+                )}"
+              >
+                ${escapeHtml(sourceCode)}
+              </span>
+            `;
+
+
             return `
 
               <div class="popup-event">
+
+                ${popupSourceBadge}
 
                 <div class="popup-event-date">
                   ${escapeHtml(
@@ -5013,6 +5336,20 @@
 
     document
       .getElementById(
+        "sourceFilter"
+      )
+      .addEventListener(
+        "change",
+        () => {
+
+          applyFilters();
+
+        }
+      );
+
+
+    document
+      .getElementById(
         "categoryFilter"
       )
       .addEventListener(
@@ -5083,6 +5420,13 @@
 
 
           clearDistanceOrigin();
+
+
+          document
+            .getElementById(
+              "sourceFilter"
+            )
+            .value = "";
 
 
           document
