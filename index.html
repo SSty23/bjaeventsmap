@@ -3636,25 +3636,10 @@
           );
 
 
-      const hasBjaOption =
-        Array.from(
-          sourceSelect.options
-        )
-          .some(
-            option =>
-              option.value ===
-              "BJA"
-          );
-
-
       sourceSelect.value =
         sourceExists
           ? requestedSource
-          : (
-              hasBjaOption
-                ? "BJA"
-                : ""
-            );
+          : "";
 
 
       if (
@@ -7208,7 +7193,7 @@
             .getElementById(
               "sourceFilter"
             )
-            .value = "BJA";
+            .value = "";
 
 
           document
