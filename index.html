@@ -2090,6 +2090,129 @@
       }
     }
 
+
+    /* --------------------------------------------
+       COMPACT DESKTOP FILTER PANEL
+       Keep all filters visible without unnecessary scrolling.
+       -------------------------------------------- */
+    @media (min-width: 751px) {
+      #filters {
+        max-height: calc(100vh - 24px);
+        padding: 8px;
+      }
+
+      .filter-pane-heading {
+        padding: 0 1px 7px;
+      }
+
+      .brand-lockup {
+        gap: 8px;
+      }
+
+      .brand-mark {
+        width: 27px;
+        height: 27px;
+        flex-basis: 27px;
+        border-radius: 8px;
+      }
+
+      .brand-mark img {
+        width: 24px;
+        height: 24px;
+      }
+
+      .filter-pane-heading h1 {
+        font-size: 19px;
+        line-height: 1.1;
+      }
+
+      .filter-pane-subtitle {
+        margin-top: 0;
+        font-size: 10px;
+      }
+
+      .filter-fields {
+        gap: 3px;
+      }
+
+      .filter-fields > .filter-group {
+        grid-template-columns: 76px minmax(0, 1fr);
+        gap: 6px;
+        min-height: 34px;
+        padding: 2px 4px 2px 7px;
+        border-radius: 8px;
+      }
+
+      .filter-fields > .filter-group label,
+      .filter-fields > .date-row label {
+        font-size: 10px;
+      }
+
+      .filter-fields > .filter-group input,
+      .filter-fields > .filter-group select,
+      .filter-fields > .date-row input {
+        height: 28px;
+        padding: 4px 7px;
+        border-radius: 7px;
+        font-size: 11px;
+      }
+
+      .filter-fields .location-search-row {
+        grid-template-columns: minmax(0, 1fr) 46px;
+        gap: 4px;
+      }
+
+      .filter-fields #applyDistance {
+        width: 46px;
+        min-width: 46px;
+        height: 28px;
+        border-radius: 7px;
+        font-size: 10px;
+      }
+
+      .filter-fields #distanceStatus {
+        margin: 1px 0 -1px;
+        font-size: 9px;
+        line-height: 1.2;
+      }
+
+      .filter-fields > .date-row {
+        gap: 3px;
+      }
+
+      .filter-fields > .date-row > .filter-group {
+        grid-template-columns: 30px minmax(0, 1fr);
+        gap: 4px;
+        min-height: 34px;
+        padding: 2px 4px;
+        border-radius: 8px;
+      }
+
+      .filter-fields > .date-row > .filter-group:first-child {
+        padding-left: 7px;
+      }
+
+      .source-segmented {
+        gap: 2px;
+        padding: 2px;
+        border-radius: 7px;
+      }
+
+      .source-segment-button {
+        height: 24px;
+        padding: 2px 6px;
+        border-radius: 5px;
+        font-size: 9px;
+      }
+
+      .filter-fields #resetFilters {
+        min-height: 26px;
+        padding: 3px 7px;
+        border-radius: 7px;
+        font-size: 10px;
+      }
+    }
+
   </style>
 </head>
 
@@ -2200,13 +2323,13 @@
 
         <div class="filter-group">
           <label for="search">
-            Search event names or venues
+            Search
           </label>
 
           <input
             id="search"
             type="search"
-            placeholder="e.g. grading, coaching, judo club..."
+            placeholder="Events or venues…"
             disabled
           />
         </div>
@@ -2214,7 +2337,7 @@
 
         <div class="filter-group">
           <label for="distanceLocation">
-            Near postcode or town
+            Postcode/Town
           </label>
 
           <div class="location-search-row">
@@ -2222,7 +2345,7 @@
             <input
               id="distanceLocation"
               type="search"
-              placeholder="e.g. AL3 5XA or Cardiff"
+              placeholder="Postcode or town…"
               autocomplete="postal-code"
               disabled
             />
@@ -2247,7 +2370,7 @@
 
         <div class="filter-group">
           <label for="distanceRadius">
-            Within
+            Radius
           </label>
 
           <select
@@ -2290,7 +2413,7 @@
 
         <div class="filter-group" id="categoryFilterGroup" hidden>
           <label for="categoryFilter">
-            Event type
+            Type
           </label>
 
           <select
@@ -2340,7 +2463,7 @@
             type="button"
             disabled
           >
-            Reset filters
+            Reset
           </button>
         </div>
 
