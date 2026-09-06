@@ -1992,6 +1992,104 @@
       }
     }
 
+    /* --------------------------------------------
+       FAVOURITES
+    -------------------------------------------- */
+
+    .event-view-toggle {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .event-card-actions {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 5px;
+      flex: 0 0 auto;
+    }
+
+    .favourite-button {
+      width: 27px;
+      height: 27px;
+      flex: 0 0 27px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+      border: 1px solid #dfe3e9;
+      border-radius: 8px;
+      background: #fff;
+      color: #89909b;
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 18px;
+      font-weight: 700;
+      line-height: 1;
+      transition:
+        border-color 120ms ease,
+        background 120ms ease,
+        color 120ms ease,
+        transform 120ms ease;
+    }
+
+    .favourite-button:hover {
+      border-color: rgba(3, 0, 189, 0.24);
+      background: #f7f7ff;
+      color: var(--brand);
+    }
+
+    .favourite-button.saved {
+      border-color: rgba(3, 0, 189, 0.22);
+      background: var(--brand-soft);
+      color: var(--brand);
+    }
+
+    .favourite-button:active {
+      transform: scale(.94);
+    }
+
+    .favourite-button:focus-visible {
+      outline: 3px solid rgba(3, 0, 189, 0.16);
+      outline-offset: 1px;
+    }
+
+    .event-card-favourite {
+      margin: -2px -2px -2px 0;
+    }
+
+    .popup-event-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 4px;
+    }
+
+    .popup-source-badge {
+      margin: 0;
+    }
+
+    .popup-favourite-button {
+      width: 26px;
+      height: 26px;
+      flex-basis: 26px;
+      border-radius: 7px;
+      font-size: 17px;
+    }
+
+    @media (max-width: 750px) {
+      .event-view-button {
+        padding-inline: 4px;
+        font-size: 10px;
+      }
+
+      .favourite-button {
+        width: 29px;
+        height: 29px;
+        flex-basis: 29px;
+      }
+    }
+
   </style>
 </head>
 
@@ -2275,6 +2373,15 @@
           >
             Online events
           </button>
+
+          <button
+            id="favouritesView"
+            class="event-view-button"
+            type="button"
+            aria-pressed="false"
+          >
+            ★ Favourites
+          </button>
         </div>
 
         <div
@@ -2350,9 +2457,16 @@
 
     let dataLoaded = false;
 
+    const FAVOURITES_STORAGE_KEY =
+      "ukJudoEventsFavouritesV1";
+
+    let favouriteKeys =
+      loadFavouriteKeys();
+
     /*
      * "map" = physical events with coordinates.
      * "online" = online/virtual events.
+     * "favourites" = saved events from this browser/device.
      */
     let viewMode = "map";
 
@@ -3306,11 +3420,17 @@
           : "25";
 
 
+      const requestedView =
+        params.get("view");
+
       viewMode =
-        params.get("view") ===
-          "online"
+        requestedView === "online"
           ? "online"
-          : "map";
+          : (
+              requestedView === "favourites"
+                ? "favourites"
+                : "map"
+            );
 
       updateSourceSegmentedUI();
 
@@ -3454,6 +3574,16 @@
         params.set(
           "view",
           "online"
+        );
+
+      }
+      else if (
+        viewMode === "favourites"
+      ) {
+
+        params.set(
+          "view",
+          "favourites"
         );
 
       }
@@ -4395,7 +4525,254 @@
 
 
     /* ====================================================
-       MAP / ONLINE VIEW
+       FAVOURITES
+    ==================================================== */
+
+    function loadFavouriteKeys() {
+
+      try {
+
+        const raw =
+          localStorage.getItem(
+            FAVOURITES_STORAGE_KEY
+          );
+
+        if (!raw) {
+
+          return new Set();
+
+        }
+
+        const parsed =
+          JSON.parse(raw);
+
+        if (!Array.isArray(parsed)) {
+
+          return new Set();
+
+        }
+
+        return new Set(
+          parsed.filter(
+            value =>
+              typeof value === "string" &&
+              value.length > 0
+          )
+        );
+
+      }
+      catch (error) {
+
+        console.warn(
+          "Could not read favourites from local storage:",
+          error
+        );
+
+        return new Set();
+
+      }
+
+    }
+
+
+    function saveFavouriteKeys() {
+
+      try {
+
+        localStorage.setItem(
+          FAVOURITES_STORAGE_KEY,
+          JSON.stringify(
+            Array.from(favouriteKeys)
+          )
+        );
+
+      }
+      catch (error) {
+
+        console.warn(
+          "Could not save favourites to local storage:",
+          error
+        );
+
+      }
+
+    }
+
+
+    function favouriteKey(event) {
+
+      const source =
+        normaliseSource(
+          event?.source
+        ) || "UNKNOWN";
+
+      const sourceId =
+        event?.source_event_id ??
+        event?.bja_id ??
+        event?.id ??
+        "";
+
+      const id =
+        String(sourceId)
+          .trim();
+
+      return id
+        ? `${source}:${id}`
+        : "";
+
+    }
+
+
+    function isFavourite(event) {
+
+      const key =
+        favouriteKey(event);
+
+      return Boolean(
+        key &&
+        favouriteKeys.has(key)
+      );
+
+    }
+
+
+    function favouriteButtonHtml(
+      event,
+      extraClass = ""
+    ) {
+
+      const key =
+        favouriteKey(event);
+
+      if (!key) {
+
+        return "";
+
+      }
+
+      const saved =
+        favouriteKeys.has(key);
+
+      return `
+        <button
+          class="favourite-button ${extraClass} ${saved ? "saved" : ""}"
+          type="button"
+          data-favourite-key="${escapeAttribute(key)}"
+          aria-pressed="${String(saved)}"
+          aria-label="${saved ? "Remove from favourites" : "Add to favourites"}"
+          title="${saved ? "Remove from favourites" : "Add to favourites"}"
+        >
+          ${saved ? "★" : "☆"}
+        </button>
+      `;
+
+    }
+
+
+    function updateFavouriteButtons() {
+
+      for (
+        const button of
+        document.querySelectorAll(
+          ".favourite-button[data-favourite-key]"
+        )
+      ) {
+
+        const saved =
+          favouriteKeys.has(
+            button.dataset.favouriteKey
+          );
+
+        button.classList.toggle(
+          "saved",
+          saved
+        );
+
+        button.textContent =
+          saved
+            ? "★"
+            : "☆";
+
+        button.setAttribute(
+          "aria-pressed",
+          String(saved)
+        );
+
+        button.setAttribute(
+          "aria-label",
+          saved
+            ? "Remove from favourites"
+            : "Add to favourites"
+        );
+
+        button.title =
+          saved
+            ? "Remove from favourites"
+            : "Add to favourites";
+
+      }
+
+    }
+
+
+    function toggleFavouriteByKey(key) {
+
+      if (!key) {
+
+        return;
+
+      }
+
+      const wasSaved =
+        favouriteKeys.has(key);
+
+      if (wasSaved) {
+
+        favouriteKeys.delete(key);
+
+      }
+      else {
+
+        favouriteKeys.add(key);
+
+      }
+
+      saveFavouriteKeys();
+
+      if (
+        viewMode === "favourites"
+      ) {
+
+        if (
+          wasSaved &&
+          activePopup
+        ) {
+
+          activePopup.remove();
+          activePopup = null;
+          selectedEventId = null;
+          updateSelectedMarker();
+
+        }
+
+        applyFilters({
+          updateUrl: false
+        });
+
+      }
+      else {
+
+        renderEventList();
+
+      }
+
+      updateFavouriteButtons();
+
+    }
+
+
+    /* ====================================================
+       MAP / ONLINE / FAVOURITES VIEW
     ==================================================== */
 
     function updateViewModeUI() {
@@ -4403,6 +4780,14 @@
       const online =
         viewMode ===
         "online";
+
+      const favourites =
+        viewMode ===
+        "favourites";
+
+      const mapView =
+        !online &&
+        !favourites;
 
 
       const mapButton =
@@ -4417,9 +4802,15 @@
         );
 
 
+      const favouritesButton =
+        document.getElementById(
+          "favouritesView"
+        );
+
+
       mapButton.classList.toggle(
         "active",
-        !online
+        mapView
       );
 
 
@@ -4429,15 +4820,27 @@
       );
 
 
+      favouritesButton.classList.toggle(
+        "active",
+        favourites
+      );
+
+
       mapButton.setAttribute(
         "aria-pressed",
-        String(!online)
+        String(mapView)
       );
 
 
       onlineButton.setAttribute(
         "aria-pressed",
         String(online)
+      );
+
+
+      favouritesButton.setAttribute(
+        "aria-pressed",
+        String(favourites)
       );
 
 
@@ -4458,18 +4861,22 @@
 
 
       /*
-       * Distance controls have no meaning for online
-       * events. Leave the user's values in place so they
-       * are restored when switching back to Map events.
+       * Distance filtering is only meaningful in the normal
+       * physical map view. Values remain in place when the
+       * user switches to Online or Favourites.
        */
       if (dataLoaded) {
+
+        const distanceDisabled =
+          online ||
+          favourites;
 
         document
           .getElementById(
             "distanceLocation"
           )
           .disabled =
-            online;
+            distanceDisabled;
 
 
         document
@@ -4477,7 +4884,7 @@
             "distanceRadius"
           )
           .disabled =
-            online;
+            distanceDisabled;
 
 
         document
@@ -4485,7 +4892,7 @@
             "applyDistance"
           )
           .disabled =
-            online;
+            distanceDisabled;
 
       }
 
@@ -4499,15 +4906,14 @@
         map.setLayoutProperty(
           "search-location-point",
           "visibility",
-          online
-            ? "none"
-            : "visible"
+          mapView
+            ? "visible"
+            : "none"
         );
 
       }
 
     }
-
 
     function setViewMode(
       mode
@@ -4516,7 +4922,11 @@
       const nextMode =
         mode === "online"
           ? "online"
-          : "map";
+          : (
+              mode === "favourites"
+                ? "favourites"
+                : "map"
+            );
 
 
       if (
@@ -4629,6 +5039,19 @@
 
             if (
               !isOnlineEvent(event)
+            ) {
+
+              return false;
+
+            }
+
+          }
+          else if (
+            viewMode === "favourites"
+          ) {
+
+            if (
+              !isFavourite(event)
             ) {
 
               return false;
@@ -4830,7 +5253,14 @@
         eventsToGeoJSON(
           viewMode === "map"
             ? filteredEvents
-            : []
+            : (
+                viewMode === "favourites"
+                  ? filteredEvents.filter(
+                      event =>
+                        isMapEvent(event)
+                    )
+                  : []
+              )
         )
       );
 
@@ -4847,7 +5277,8 @@
     function getVisibleEvents() {
 
       if (
-        viewMode === "online"
+        viewMode === "online" ||
+        viewMode === "favourites"
       ) {
 
         return filteredEvents;
@@ -4910,27 +5341,57 @@
         filteredEvents.length === 0
       ) {
 
-        resultCount.textContent =
-          viewMode === "online"
-            ? "0 online events matching filters"
-            : "0 events matching filters";
+        if (
+          viewMode === "favourites"
+        ) {
 
+          resultCount.textContent =
+            "0 saved favourites";
 
-        container.innerHTML = `
-          <div class="empty-state">
-            <strong>
-              ${
-                viewMode === "online"
-                  ? "No online events match these filters."
-                  : "No events match these filters."
-              }
-            </strong>
-            <span>
-              Change the search, source, event type or date range,
-              or reset the filters.
-            </span>
-          </div>
-        `;
+          container.innerHTML = `
+            <div class="empty-state">
+              <strong>
+                ${
+                  favouriteKeys.size === 0
+                    ? "No favourites saved yet."
+                    : "No saved favourites match these filters."
+                }
+              </strong>
+              <span>
+                ${
+                  favouriteKeys.size === 0
+                    ? "Tap the star on an event card or map marker popup to save it here."
+                    : "Change the search, source, event type or date range, or reset the filters."
+                }
+              </span>
+            </div>
+          `;
+
+        }
+        else {
+
+          resultCount.textContent =
+            viewMode === "online"
+              ? "0 online events matching filters"
+              : "0 events matching filters";
+
+          container.innerHTML = `
+            <div class="empty-state">
+              <strong>
+                ${
+                  viewMode === "online"
+                    ? "No online events match these filters."
+                    : "No events match these filters."
+                }
+              </strong>
+              <span>
+                Change the search, source, event type or date range,
+                or reset the filters.
+              </span>
+            </div>
+          `;
+
+        }
 
         return;
 
@@ -4947,6 +5408,29 @@
               ? "event"
               : "events"
           } matching filters`;
+
+      }
+      else if (
+        viewMode === "favourites"
+      ) {
+
+        const mappableFavourites =
+          filteredEvents.filter(
+            event =>
+              isMapEvent(event)
+          ).length;
+
+        resultCount.textContent =
+          `${filteredEvents.length} saved ${
+            filteredEvents.length === 1
+              ? "favourite"
+              : "favourites"
+          }` +
+          (
+            mappableFavourites > 0
+              ? ` · ${mappableFavourites} on map`
+              : ""
+          );
 
       }
       else {
@@ -5148,6 +5632,13 @@
         `;
 
 
+        const favouriteHtml =
+          favouriteButtonHtml(
+            event,
+            "event-card-favourite"
+          );
+
+
         const officialLinkHtml =
           officialUrl
             ? `
@@ -5197,7 +5688,10 @@
               )}
             </div>
 
-            ${badgesHtml}
+            <div class="event-card-actions">
+              ${badgesHtml}
+              ${favouriteHtml}
+            </div>
 
           </div>
 
@@ -5710,11 +6204,21 @@
             `;
 
 
+            const popupFavouriteHtml =
+              favouriteButtonHtml(
+                event,
+                "popup-favourite-button"
+              );
+
+
             return `
 
               <div class="popup-event">
 
-                ${popupSourceBadge}
+                <div class="popup-event-header">
+                  ${popupSourceBadge}
+                  ${popupFavouriteHtml}
+                </div>
 
                 <div class="popup-event-date">
                   ${escapeHtml(
@@ -5979,6 +6483,37 @@
 
 
     /* ====================================================
+       FAVOURITE BUTTON CLICKS
+    ==================================================== */
+
+    document.addEventListener(
+      "click",
+      event => {
+
+        const button =
+          event.target.closest?.(
+            ".favourite-button[data-favourite-key]"
+          );
+
+        if (!button) {
+
+          return;
+
+        }
+
+        event.preventDefault();
+        event.stopPropagation();
+
+        toggleFavouriteByKey(
+          button.dataset.favouriteKey
+        );
+
+      },
+      true
+    );
+
+
+    /* ====================================================
        ABOUT PANEL
     ==================================================== */
 
@@ -6099,6 +6634,22 @@
 
           setViewMode(
             "online"
+          );
+
+        }
+      );
+
+
+    document
+      .getElementById(
+        "favouritesView"
+      )
+      .addEventListener(
+        "click",
+        () => {
+
+          setViewMode(
+            "favourites"
           );
 
         }
