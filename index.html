@@ -1958,6 +1958,40 @@
 
     }
 
+
+
+    /* --------------------------------------------
+       MOBILE ABOUT PANEL FIX
+       Keep the About card inside the real mobile viewport.
+       -------------------------------------------- */
+    @media (max-width: 750px) {
+      /* backdrop-filter can make a fixed descendant use this
+         small floating control as its containing block on mobile. */
+      .header-actions {
+        backdrop-filter: none;
+        -webkit-backdrop-filter: none;
+      }
+
+      #aboutPanel {
+        position: fixed;
+        top: 50%;
+        right: 12px;
+        bottom: auto;
+        left: 12px;
+        width: auto;
+        max-width: none;
+        max-height: calc(100vh - 32px);
+        max-height: calc(100dvh - 32px);
+        padding: 16px;
+        overflow-x: hidden;
+        overflow-y: auto;
+        transform: translateY(-50%);
+        overscroll-behavior: contain;
+        -webkit-overflow-scrolling: touch;
+        border-radius: 14px;
+      }
+    }
+
   </style>
 </head>
 
